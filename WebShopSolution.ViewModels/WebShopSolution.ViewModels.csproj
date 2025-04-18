@@ -10,4 +10,8 @@
     <Folder Include="System\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
+  </ItemGroup>
+
 </Project>

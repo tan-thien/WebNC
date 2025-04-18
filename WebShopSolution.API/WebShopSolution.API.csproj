@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <ProjectReference Include="..\WebShopSolution.Application\WebShopSolution.Application.csproj" />
+    <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
+    <ProjectReference Include="..\WebShopSolution.ViewModels\WebShopSolution.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

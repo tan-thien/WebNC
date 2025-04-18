@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
+    <ProjectReference Include="..\WebShopSolution.ViewModels\WebShopSolution.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

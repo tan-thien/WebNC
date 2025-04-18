@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog\" />
     <Folder Include="Dtos\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
   </ItemGroup>
 
 </Project>

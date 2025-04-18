@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog\" />
     <Folder Include="System\" />
   </ItemGroup>
 

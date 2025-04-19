@@ -2,6 +2,13 @@
 using WebShopSolution.Data.Repositories.Categories;
 using WebShopSolution.Data.EF;
 using Microsoft.EntityFrameworkCore;
+using WebShopSolution.Data.Repositories.Products;
+using WebShopSolution.Data.UnitOfWork;
+using WebShopSolution.Application.Catalog.Products;
+using WebShopSolution.Data.Repositories.Accounts;
+using WebShopSolution.Data.Repositories.Customers;
+using WebShopSolution.Data.Repositories.Orders;
+using WebShopSolution.Application.Catalog.Accounts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +25,14 @@ builder.Services.AddDbContext<WebShopDbContext>(options =>
 // Nơi để đăng kí các dịch vụ
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+
 
 
 // Nơi để đăng kí các dịch vụ

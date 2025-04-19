@@ -53,5 +53,20 @@ namespace WebShopSolution.Data.Repositories.Products
                 await _context.SaveChangesAsync();
             }
         }
+        // Implement phương thức lấy tất cả sản phẩm kèm theo Category
+        public async Task<List<Product>> GetAllWithCategoryAsync()
+        {
+            return await _context.Products
+                                   .Include(p => p.Category) // Bao gồm thông tin Category
+                                   .ToListAsync();
+        }
+
+        // Implement phương thức lấy sản phẩm theo id kèm theo Category
+        public async Task<Product> GetByIdWithCategoryAsync(int id)
+        {
+            return await _context.Products
+                                   .Include(p => p.Category) // Bao gồm thông tin Category
+                                   .FirstOrDefaultAsync(p => p.IdProduct == id);
+        }
     }
 }

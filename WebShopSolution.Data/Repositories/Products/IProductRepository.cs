@@ -14,5 +14,7 @@ namespace WebShopSolution.Data.Repositories.Products
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
+        Task<List<Product>> GetAllWithCategoryAsync(); // Thêm phương thức mới
+        Task<Product> GetByIdWithCategoryAsync(int id); // Phương thức lấy sản phẩm theo id với Category
     }
 }

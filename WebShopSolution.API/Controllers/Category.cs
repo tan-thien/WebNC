@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebShopSolution.Application.Catalog.Categories;
+using WebShopSolution.ViewModels.Catalog.Category;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WebShopSolution.ViewModels.Catalog.Category;
 
 namespace WebShopSolution.Api.Controllers
 {
@@ -17,68 +17,68 @@ namespace WebShopSolution.Api.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/category
+        /// <summary>
+        /// Lấy danh sách tất cả danh mục (có thể gồm danh mục lồng nhau nếu service xử lý)
+        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryViewModel>>> GetAllCategories()
+        public async Task<ActionResult<IEnumerable<CategoryViewModel>>> GetAll()
         {
             var categories = await _categoryService.GetAllAsync();
             return Ok(categories);
         }
 
-        // GET: api/category/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryViewModel>> GetCategoryById(int id)
+        /// <summary>
+        /// Lấy danh mục theo ID
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<CategoryViewModel>> GetById(int id)
         {
             var category = await _categoryService.GetByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            return Ok(category);
+            return category == null ? NotFound() : Ok(category);
         }
 
-        // POST: api/category
+        /// <summary>
+        /// Tạo mới danh mục
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult<CategoryViewModel>> CreateCategory([FromBody] CategoryCreateRequest request)
+        public async Task<ActionResult<CategoryViewModel>> Create([FromBody] CategoryCreateRequest request)
         {
-            if (request == null)
-            {
-                return BadRequest("Invalid data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var newCategory = await _categoryService.AddAsync(request);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = newCategory.IdCate }, newCategory);
+            var createdCategory = await _categoryService.AddAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id = createdCategory.IdCate }, createdCategory);
         }
 
-        // PUT: api/category/{id}
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateRequest request)
+        /// <summary>
+        /// Cập nhật danh mục
+        /// </summary>
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateRequest request)
         {
             if (id != request.IdCate)
-            {
                 return BadRequest("Category ID mismatch.");
-            }
 
-            var updated = await _categoryService.UpdateAsync(request);
-            if (!updated)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
+            var result = await _categoryService.UpdateAsync(request);
+            return result ? NoContent() : NotFound();
         }
 
-        // DELETE: api/category/{id}
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteCategory(int id)
+        /// <summary>
+        /// Xoá danh mục
+        /// </summary>
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _categoryService.DeleteAsync(id);
-            if (!deleted)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
+            var result = await _categoryService.DeleteAsync(id);
+            return result ? NoContent() : NotFound();
         }
+
+        [HttpGet("tree")]
+        public async Task<ActionResult<List<CategoryViewModel>>> GetNestedCategories()
+        {
+            var tree = await _categoryService.GetNestedCategoriesAsync();
+            return Ok(tree);
+        }
+
     }
 }

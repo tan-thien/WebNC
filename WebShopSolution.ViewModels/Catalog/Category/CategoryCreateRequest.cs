@@ -11,5 +11,8 @@ namespace WebShopSolution.ViewModels.Catalog.Category
     {
         [Required]
         public string CateName { get; set; }
+
+        public int? ParentId { get; set; } // ✅ Cho phép null (danh mục gốc)
     }
+
 }

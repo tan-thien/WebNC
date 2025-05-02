@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebShopSolution.Data.EF;
 
 
@@ -6,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<WebShopDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("WebShopDb")));
+
 
 var app = builder.Build();
 
@@ -17,8 +21,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-builder.Services.AddDbContext<WebShopDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WebShopDb")));
+
+
+
+
 
 
 
@@ -31,6 +37,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=AdminAuth}/{action=Login}/{id?}");
 
 app.Run();

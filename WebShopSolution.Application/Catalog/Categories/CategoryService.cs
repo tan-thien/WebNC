@@ -21,13 +21,29 @@ namespace WebShopSolution.Application.Catalog.Categories
 
         public async Task<List<CategoryViewModel>> GetAllAsync()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return categories.Select(c => new CategoryViewModel
+            var entities = await _categoryRepository.GetAllAsync();
+
+            // Map sang viewmodel
+            var lookup = entities.Select(c => new CategoryViewModel
             {
                 IdCate = c.IdCate,
-                CateName = c.CateName
+                CateName = c.CateName,
+                ParentId = c.ParentId
             }).ToList();
+
+            // Build cây
+            var dict = lookup.ToDictionary(c => c.IdCate);
+            foreach (var item in lookup)
+            {
+                if (item.ParentId.HasValue && dict.ContainsKey(item.ParentId.Value))
+                {
+                    dict[item.ParentId.Value].Children.Add(item);
+                }
+            }
+
+            return lookup.Where(c => !c.ParentId.HasValue).ToList(); // Trả về root nodes
         }
+
 
         public async Task<CategoryViewModel?> GetByIdAsync(int id)
         {
@@ -45,7 +61,8 @@ namespace WebShopSolution.Application.Catalog.Categories
         {
             var newCategory = new Category
             {
-                CateName = request.CateName
+                CateName = request.CateName,
+                ParentId = request.ParentId
             };
 
             await _categoryRepository.AddAsync(newCategory);
@@ -53,7 +70,9 @@ namespace WebShopSolution.Application.Catalog.Categories
             return new CategoryViewModel
             {
                 IdCate = newCategory.IdCate,
-                CateName = newCategory.CateName
+                CateName = newCategory.CateName,
+                ParentId = newCategory.ParentId, 
+                Children = new List<CategoryViewModel>() 
             };
         }
 
@@ -63,6 +82,8 @@ namespace WebShopSolution.Application.Catalog.Categories
             if (category == null) return false;
 
             category.CateName = request.CateName;
+            category.ParentId = request.ParentId;
+
             await _categoryRepository.UpdateAsync(category);
 
             return true;
@@ -76,5 +97,35 @@ namespace WebShopSolution.Application.Catalog.Categories
             await _categoryRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<List<CategoryViewModel>> GetNestedCategoriesAsync()
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+
+            // Bước 1: Map danh sách sang CategoryViewModel
+            var viewModels = categories.Select(c => new CategoryViewModel
+            {
+                IdCate = c.IdCate,
+                CateName = c.CateName,
+                ParentId = c.ParentId
+            }).ToList();
+
+            // Bước 2: Tạo Dictionary để dễ tra cứu theo Id
+            var lookup = viewModels.ToDictionary(c => c.IdCate);
+
+            // Bước 3: Gắn các danh mục con vào cha
+            foreach (var item in viewModels)
+            {
+                if (item.ParentId.HasValue && lookup.ContainsKey(item.ParentId.Value))
+                {
+                    var parent = lookup[item.ParentId.Value];
+                    parent.Children.Add(item);
+                }
+            }
+
+            // Bước 4: Trả về danh sách root (danh mục không có cha)
+            return viewModels.Where(c => !c.ParentId.HasValue).ToList();
+        }
+
     }
 }

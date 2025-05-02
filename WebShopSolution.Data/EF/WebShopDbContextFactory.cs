@@ -18,7 +18,7 @@ public class WebShopDbContextFactory : IDesignTimeDbContextFactory<WebShopDbCont
             .Build();
 
         // Lấy chuỗi kết nối từ appsettings.json
-        var connectionString = configuration.GetConnectionString("QLDuAnDatabase");
+        var connectionString = configuration.GetConnectionString("WebShopDb");
         optionsBuilder.UseSqlServer(connectionString);
 
         return new WebShopDbContext(optionsBuilder.Options);

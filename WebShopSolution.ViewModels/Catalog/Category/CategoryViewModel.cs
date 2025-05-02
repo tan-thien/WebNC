@@ -10,5 +10,11 @@ namespace WebShopSolution.ViewModels.Catalog.Category
     {
         public int IdCate { get; set; }
         public string CateName { get; set; }
+
+        public int? ParentId { get; set; }
+
+        // ✅ Nếu bạn muốn trả về cây danh mục
+        public List<CategoryViewModel> Children { get; set; } = new();
     }
+
 }

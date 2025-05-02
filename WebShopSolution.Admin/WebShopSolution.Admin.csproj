@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WebShopSolution.API\WebShopSolution.API.csproj" />
     <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
+    <ProjectReference Include="..\WebShopSolution.ViewModels\WebShopSolution.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

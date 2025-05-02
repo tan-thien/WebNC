@@ -31,6 +31,13 @@ namespace WebShopSolution.Data.EF
                 .WithOne(c => c.Account)
                 .HasForeignKey<Customer>(c => c.IdAcc);
 
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.Parent)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.Restrict); // Tránh xoá cascade gây vòng lặp
+
+
             // Nếu có Fluent API khác thì đặt tại đây
         }
     }

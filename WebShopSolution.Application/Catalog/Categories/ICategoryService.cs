@@ -16,6 +16,9 @@ namespace WebShopSolution.Application.Catalog.Categories
         Task<CategoryViewModel> AddAsync(CategoryCreateRequest request);
         Task<bool> UpdateAsync(CategoryUpdateRequest request);
         Task<bool> DeleteAsync(int id);
+
+        Task<List<CategoryViewModel>> GetNestedCategoriesAsync();
+
     }
 
 }

@@ -1,0 +1,34 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Category.CategoryUpdateRequest
+
+@{
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+    var parentCategories = ViewBag.ParentCategories as List<WebShopSolution.ViewModels.Catalog.Category.CategoryViewModel>;
+}
+
+<h2>Chỉnh sửa danh mục</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="IdCate" />
+
+    <div class="form-group">
+        <label asp-for="CateName"></label>
+        <input asp-for="CateName" class="form-control" />
+        <span asp-validation-for="CateName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Danh mục cha (nếu có)</label>
+        <select asp-for="ParentId" class="form-control">
+            <option value="">-- Không chọn (Danh mục gốc) --</option>
+            @foreach (var cate in parentCategories)
+            {
+                <option value="@cate.IdCate" selected="@(cate.IdCate == Model.ParentId ? "selected" : null)">
+                    @cate.CateName
+                </option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

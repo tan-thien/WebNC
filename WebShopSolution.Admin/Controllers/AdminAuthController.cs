@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WebShopSolution.Data.EF;
 using WebShopSolution.ViewModels.Catalog.Account;
 
@@ -39,10 +40,14 @@ namespace WebShopSolution.Admin.Controllers
             }
 
             // Lưu session hoặc cookie nếu muốn
+
+            var adminJson = JsonSerializer.Serialize(admin);
+            HttpContext.Session.SetString("AdminSession", adminJson);
+
             HttpContext.Session.SetString("AdminUserName", admin.UserName);
 
             // Redirect vào trang admin dashboard
-            return RedirectToAction("Index", "AdminDashboard");
+            return RedirectToAction("Index", "Category");
         }
 
         public IActionResult Logout()

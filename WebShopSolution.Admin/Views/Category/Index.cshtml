@@ -1,0 +1,28 @@
+﻿@model List<WebShopSolution.ViewModels.Catalog.Category.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Danh sách danh mục";
+}
+
+<h2>Danh sách danh mục</h2>
+
+<a asp-controller="Category" asp-action="Create" class="btn btn-primary mb-2">+ Thêm danh mục</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên danh mục</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var viewData = new ViewDataDictionary(ViewData) { ["__level"] = 0 };
+            @await Html.PartialAsync("_CategoryRow", item, viewData)
+        }
+
+
+    </tbody>
+</table>

@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebShopSolution.API\WebShopSolution.API.csproj" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
     <ProjectReference Include="..\WebShopSolution.ViewModels\WebShopSolution.ViewModels.csproj" />
   </ItemGroup>

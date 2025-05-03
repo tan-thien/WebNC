@@ -1,0 +1,29 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Category.CategoryViewModel
+
+@{
+    int level = ViewData["__level"] != null ? (int)ViewData["__level"] : 0;
+    string arrow = "↳"; // Dùng dấu mũi tên
+}
+
+<tr>
+    <td>@Model.IdCate</td>
+    <td style="padding-left: @(level * 20)px;">@Html.Raw(arrow) @Model.CateName</td>
+    <td>
+        <a asp-action="Edit" asp-route-id="@Model.IdCate" class="btn btn-warning btn-sm">Sửa</a>
+        <a asp-action="Delete" asp-route-id="@Model.IdCate" class="btn btn-danger btn-sm"
+           onclick="return confirm('Bạn có chắc muốn xoá danh mục này?');">Xoá</a>
+    </td>
+</tr>
+
+@if (Model.Children != null && Model.Children.Any())
+{
+    foreach (var child in Model.Children)
+    {
+        var childViewData = new ViewDataDictionary(ViewData)
+                    {
+                        ["__level"] = level + 1
+                    };
+
+        @await Html.PartialAsync("_CategoryRow", child, childViewData)
+    }
+}

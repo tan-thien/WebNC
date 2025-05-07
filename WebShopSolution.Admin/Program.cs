@@ -35,6 +35,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 
+
 builder.Services.AddDbContext<WebShopDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("WebShopDb")));
 

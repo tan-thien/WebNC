@@ -9,25 +9,11 @@ namespace WebShopSolution.ViewModels.Catalog.Product
 {
     public class ProductCreateRequest
     {
-        [Required]
         public string ProductName { get; set; }
-
-        public string? Image { get; set; }
-
-        [Required]
-        public string Description { get; set; }
-
-        [Required]
-        public int Quantity { get; set; }
-
-        [Required]
-        public int Price { get; set; }
-
-        [Required]
-        public string Size { get; set; }
-
-        [Required]
-        public int IdCate { get; set; }
+        public string? Description { get; set; }
+        public int? BasePrice { get; set; }
+        public int? Quantity { get; set; }
+        public int CategoryId { get; set; }
     }
 
 }

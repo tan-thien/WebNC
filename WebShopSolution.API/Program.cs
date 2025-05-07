@@ -9,6 +9,7 @@ using WebShopSolution.Data.Repositories.Accounts;
 using WebShopSolution.Data.Repositories.Customers;
 using WebShopSolution.Data.Repositories.Orders;
 using WebShopSolution.Application.Catalog.Accounts;
+using WebShopSolution.Application.Catalog.ProductVariant;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +33,8 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-
+builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+builder.Services.AddScoped<IProductVariantAttributeService, ProductVariantAttributeService>();
 
 
 // Nơi để đăng kí các dịch vụ

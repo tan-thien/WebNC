@@ -68,5 +68,16 @@ namespace WebShopSolution.Data.Repositories.Products
                                    .Include(p => p.Category) // Bao gồm thông tin Category
                                    .FirstOrDefaultAsync(p => p.IdProduct == id);
         }
+
+        public async Task<Product?> GetByIdWithDetailsAsync(int id)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Attributes)
+                .FirstOrDefaultAsync(p => p.IdProduct == id);
+        }
+
     }
 }

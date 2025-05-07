@@ -15,64 +15,72 @@ namespace WebShopSolution.API.Controllers
             _productService = productService;
         }
 
-        // GET: api/product
+        // Lấy tất cả sản phẩm
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllProducts()
         {
             var products = await _productService.GetAllAsync();
-            return Ok(products);
+            return Ok(products); // Trả về danh sách sản phẩm
         }
 
-        // GET: api/product/{id}
+        // Lấy chi tiết sản phẩm theo ID
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetProductById(int id)
         {
             var product = await _productService.GetByIdAsync(id);
             if (product == null)
-                return NotFound();
-            return Ok(product);
+            {
+                return NotFound(); // Trả về lỗi 404 nếu không tìm thấy sản phẩm
+            }
+            return Ok(product); // Trả về chi tiết sản phẩm
         }
 
-        // POST: api/product
+        // Thêm mới sản phẩm
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ProductCreateRequest request)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            // Kiểm tra thông tin nhập vào có hợp lệ không
+            if (ModelState.IsValid)
+            {
+                // Tạo sản phẩm mới từ request
+                await _productService.AddAsync(request);
+                return Ok(new { message = "Product created successfully!" });
+            }
 
-            var productId = await _productService.CreateAsync(request);
-            if (productId == 0)
-                return BadRequest("Tạo sản phẩm thất bại.");
-
-            return CreatedAtAction(nameof(GetById), new { id = productId }, request);
+            return BadRequest(ModelState); // Nếu dữ liệu không hợp lệ, trả về lỗi
         }
 
-        // PUT: api/product/{id}
+        // Cập nhật sản phẩm
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ProductUpdateRequest request)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdateRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (request == null || id != request.IdProduct)
+            {
+                return BadRequest("Invalid data."); // Trả về lỗi 400 nếu dữ liệu không hợp lệ
+            }
 
-            if (id != request.IdProduct)
-                return BadRequest("Id không khớp.");
+            var existingProduct = await _productService.GetByIdAsync(id);
+            if (existingProduct == null)
+            {
+                return NotFound(); // Trả về lỗi 404 nếu sản phẩm không tồn tại
+            }
 
-            var result = await _productService.UpdateAsync(request);
-            if (!result)
-                return NotFound();
-
-            return Ok("Cập nhật thành công.");
+            await _productService.UpdateAsync(request);
+            return NoContent(); // Trả về mã 204 nếu cập nhật thành công
         }
 
-        // DELETE: api/product/{id}
+        // Xóa sản phẩm
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var result = await _productService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
+            var product = await _productService.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound(); // Trả về lỗi 404 nếu sản phẩm không tồn tại
+            }
 
-            return Ok("Xóa thành công.");
+            await _productService.DeleteAsync(id);
+            return NoContent(); // Trả về mã 204 nếu xóa thành công
         }
     }
 }

@@ -10,12 +10,12 @@ namespace WebShopSolution.ViewModels.Catalog.Product
     {
         public int IdProduct { get; set; }
         public string ProductName { get; set; }
-        public string? Image { get; set; }
-        public string Description { get; set; }
-        public int Quantity { get; set; }
-        public int Price { get; set; }
-        public string Size { get; set; }
+        public string? Description { get; set; }
+        public int? BasePrice { get; set; }
+        public int? Quantity { get; set; }
         public int IdCate { get; set; }
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
+        public List<ProductImageViewModel> ProductImages { get; set; }
+        public List<ProductVariantViewModel> Variants { get; set; }
     }
 }

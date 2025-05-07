@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebShopSolution.Data.EF;
 
@@ -11,9 +12,11 @@ using WebShopSolution.Data.EF;
 namespace WebShopSolution.Data.Migrations
 {
     [DbContext(typeof(WebShopDbContext))]
-    partial class WebShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250505164655_UpdateEntitiesWithProductVariantSupport")]
+    partial class UpdateEntitiesWithProductVariantSupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,7 +299,7 @@ namespace WebShopSolution.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImage");
                 });
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.ProductVariant", b =>
@@ -324,7 +327,7 @@ namespace WebShopSolution.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductVariants");
+                    b.ToTable("ProductVariant");
                 });
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.ProductVariantAttribute", b =>
@@ -350,7 +353,7 @@ namespace WebShopSolution.Data.Migrations
 
                     b.HasIndex("VariantId");
 
-                    b.ToTable("ProductVariantAttributes");
+                    b.ToTable("ProductVariantAttribute");
                 });
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.Cart", b =>

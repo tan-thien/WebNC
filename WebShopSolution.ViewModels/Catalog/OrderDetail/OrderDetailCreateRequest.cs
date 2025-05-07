@@ -9,17 +9,7 @@ namespace WebShopSolution.ViewModels.Catalog.OrderDetail
 {
     public class OrderDetailCreateRequest
     {
-        [Required]
-        public int IdOrder { get; set; }
 
-        [Required]
-        public int IdProduct { get; set; }
-
-        [Required]
-        public int Quantity { get; set; }
-
-        [Required]
-        public int Price { get; set; }
     }
 
 }

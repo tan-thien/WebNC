@@ -11,11 +11,11 @@ namespace WebShopSolution.Application.Catalog.Products
 {
     public interface IProductService
     {
-        Task<List<ProductViewModel>> GetAllAsync();
-        Task<ProductViewModel?> GetByIdAsync(int id);
-        Task<int> CreateAsync(ProductCreateRequest request);
-        Task<bool> UpdateAsync(ProductUpdateRequest request);
-        Task<bool> DeleteAsync(int id);
+        Task<List<ProductViewModel>> GetAllAsync();  // Đổi tên phương thức cho đồng bộ
+        Task<ProductViewModel> GetByIdAsync(int id);  // Đổi tên phương thức cho đồng bộ
+        Task AddAsync(ProductCreateRequest request);  // Đổi phương thức để sử dụng ProductCreateRequest
+        Task UpdateAsync(ProductUpdateRequest request);  // Đổi phương thức để sử dụng ProductUpdateRequest
+        Task DeleteAsync(int id);
     }
 
 }

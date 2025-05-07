@@ -8,11 +8,13 @@ namespace WebShopSolution.ViewModels.Catalog.OrderDetail
 {
     public class OrderDetailViewModel
     {
-        public int IdOrder { get; set; }
-        public int IdProduct { get; set; }
-        public string ProductName { get; set; }
+        public int IdOrderDetail { get; set; }
+        public int ProductId { get; set; }
+        public int? VariantId { get; set; }
         public int Quantity { get; set; }
         public int Price { get; set; }
+        public int TotalPrice => Quantity * Price;
     }
+
 
 }

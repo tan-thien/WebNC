@@ -62,6 +62,7 @@ namespace WebShopSolution.Application.Catalog.ProductVariant
             return variants.Select(v => new ProductVariantViewModel
             {
                 Id = v.Id,
+                ProductId=v.ProductId,
                 Sku = v.Sku,
                 Price = v.Price,
                 Stock = v.Stock,

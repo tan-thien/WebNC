@@ -18,7 +18,14 @@ namespace WebShopSolution.API.Controllers
 
         // POST: api/ProductVariants
         [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ProductVariantCreateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            var result = await _productVariantService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetByProductId), new { productId = result.ProductId }, result);
+        }
 
         // GET: api/ProductVariants/product/5
         [HttpGet("product/{productId}")]

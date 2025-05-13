@@ -20,6 +20,8 @@ namespace WebShopSolution.Data.Entities
         public int Price { get; set; }
         public int Stock { get; set; }
 
+        public string? Status { get; set; }
+
         public ICollection<OrderDetail> OrderDetails { get; set; }
 
         public ICollection<ProductVariantAttribute> Attributes { get; set; }

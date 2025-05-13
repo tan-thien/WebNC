@@ -1,0 +1,84 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Product.ProductUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h2>Edit Product</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="IdProduct" />
+
+    <div class="form-group">
+        <label asp-for="ProductName"></label>
+        <input asp-for="ProductName" class="form-control" />
+        <span asp-validation-for="ProductName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasePrice"></label>
+        <input asp-for="BasePrice" class="form-control" />
+        <span asp-validation-for="BasePrice" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantity"></label>
+        <input asp-for="Quantity" class="form-control" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IdCate">Category</label>
+        <select asp-for="IdCate" asp-items="ViewBag.Categories" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+
+        <span asp-validation-for="IdCate" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+        <label>Upload Images</label>
+        <input type="file" name="Images" multiple class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Existing Images</label>
+        <div id="image-preview" style="display: flex; flex-wrap: wrap; gap: 10px;">
+            @if (Model.ExistingImages != null)
+            {
+                foreach (var img in Model.ExistingImages)
+                {
+                    <div style="position: relative;">
+                        <img src="@img.ImagePath" alt="Image" width="120" height="120" style="border: 1px solid #ccc;" />
+                        <a href="@Url.Action("DeleteImage", "Product", new { id = img.Id })"
+                           style="position:absolute;top:0;right:0;background:red;color:white;padding:2px 5px;text-decoration:none;"
+                           onclick="return confirm('Bạn chắc chắn muốn xoá ảnh này?');">X</a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -20,6 +20,8 @@ namespace WebShopSolution.Data.Entities
         [Required(ErrorMessage = "Quantity is required.")]
         public int? Quantity { get; set; }
 
+        public string? Status { get; set; }
+
         // Foreign key to Category
         [ForeignKey("Category")]
         [Required]

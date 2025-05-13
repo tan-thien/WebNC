@@ -1,0 +1,56 @@
+﻿@model IEnumerable<WebShopSolution.ViewModels.Catalog.Product.ProductViewModel>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h2>Product List</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Base Price</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>
+                    @if (product.ProductImages != null && product.ProductImages.Any())
+                    {
+                        <img src="@product.ProductImages.First().ImagePath" alt="Image" width="60" height="60" class="img-thumbnail" />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "Product", new { id = product.IdProduct })">
+                        @product.ProductName
+                    </a>
+                </td>
+                <td>@product.Description</td>
+                <td>@string.Format("{0:N0} VND", product.BasePrice)</td>
+                <td>@product.Quantity </td>
+                <td>@product.CategoryName</td>
+                <td>@(product.Status)</td>
+                <td>
+                    <a href="@Url.Action("Details", "Product", new { id = product.IdProduct })" class="btn btn-info">Details</a>
+                    <a href="@Url.Action("Edit", "Product", new { id = product.IdProduct })" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", "Product", new { id = product.IdProduct })" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Product")" class="btn btn-primary">Create New Product</a>

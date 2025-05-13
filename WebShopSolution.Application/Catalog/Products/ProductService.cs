@@ -37,14 +37,13 @@ namespace WebShopSolution.Application.Catalog.Products
                 BasePrice = p.BasePrice,
                 Quantity = p.Quantity,
                 IdCate = p.IdCate,
+                Status = p.Status,
                 CategoryName = p.Category?.CateName ?? "Unknown",
                 ProductImages = p.ProductImages?.Select(pi => new ProductImageViewModel
                 {
                     Id = pi.Id,
                     ImagePath = pi.ImagePath,
-                    Caption = pi.Caption,
                     SortOrder = pi.SortOrder,
-                    IsDefault = pi.IsDefault
                 }).ToList() ?? new List<ProductImageViewModel>(),
 
                 Variants = p.Variants?.Select(v => new ProductVariantViewModel
@@ -83,6 +82,7 @@ namespace WebShopSolution.Application.Catalog.Products
                 BasePrice = product.BasePrice,
                 Quantity = product.Quantity,
                 CategoryName = product.Category?.CateName,
+                Status = product.Status,
                 ProductImages = product.ProductImages.Select(img => new ProductImageViewModel
                 {
                     Id = img.Id,
@@ -112,7 +112,8 @@ namespace WebShopSolution.Application.Catalog.Products
                 Description = request.Description,
                 BasePrice = request.BasePrice,
                 Quantity = request.Quantity,
-                IdCate = request.CategoryId
+                IdCate = request.IdCate,
+                Status = request.Status
             };
 
             _context.Products.Add(product);
@@ -122,6 +123,16 @@ namespace WebShopSolution.Application.Catalog.Products
         // Cập nhật sản phẩm
         public async Task UpdateAsync(ProductUpdateRequest request)
         {
+
+            // Kiểm tra xem CategoryId có hợp lệ hay không trước khi tiếp tục cập nhật
+            var category = await _context.Categories
+                                         .FirstOrDefaultAsync(c => c.IdCate == request.IdCate);
+
+            if (category == null)
+            {
+                throw new Exception("Category đã chọn không tồn tại.");
+            }
+
             var product = await _context.Products.FindAsync(request.IdProduct);
             if (product == null) return;
 
@@ -129,7 +140,8 @@ namespace WebShopSolution.Application.Catalog.Products
             product.Description = request.Description;
             product.BasePrice = request.BasePrice;
             product.Quantity = request.Quantity;
-            product.IdCate = request.CategoryId;
+            product.IdCate = request.IdCate;
+            product.Status = request.Status;
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();

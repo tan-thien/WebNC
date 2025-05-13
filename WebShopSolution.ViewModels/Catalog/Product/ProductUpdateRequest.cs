@@ -14,6 +14,8 @@ namespace WebShopSolution.ViewModels.Catalog.Product
         public string? Description { get; set; }
         public int? BasePrice { get; set; }
         public int? Quantity { get; set; }
-        public int CategoryId { get; set; }
+        public string? Status { get; set; }         // BỔ SUNG
+        public int IdCate { get; set; }             // BỔ SUNG
+
     }
 }

@@ -1,0 +1,137 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Product.ProductCreateViewModel
+
+@{
+    ViewData["Title"] = "Tạo sản phẩm";
+}
+
+<h2>Create Product</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="ProductName"></label>
+        <input asp-for="ProductName" class="form-control" />
+        <span asp-validation-for="ProductName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsVariantProduct"></label>
+        <input asp-for="IsVariantProduct" type="checkbox" class="form-check-input" />
+        <span asp-validation-for="IsVariantProduct" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasePrice"></label>
+        <input asp-for="BasePrice" class="form-control" />
+        <span asp-validation-for="BasePrice" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantity"></label>
+        <input asp-for="Quantity" class="form-control" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IdCate">Category</label>
+        <select asp-for="IdCate" asp-items="ViewBag.Categories" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+
+        <span asp-validation-for="IdCate" class="text-danger"></span>
+
+    </div>
+
+
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="">-- Select status --</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Upload Images</label>
+        <input type="file" name="Images" id="imageUpload" multiple class="form-control" />
+    </div>
+
+    <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+        const input = document.getElementById('imageUpload');
+        const preview = document.getElementById('imagePreview');
+        const filesArray = [];
+
+        input.addEventListener('change', function () {
+            // Clear old previews
+            preview.innerHTML = '';
+
+            // Update internal array of selected files
+            filesArray.length = 0;
+            for (let i = 0; i < input.files.length; i++) {
+                filesArray.push(input.files[i]);
+            }
+
+            updatePreview();
+        });
+
+        function updatePreview() {
+            preview.innerHTML = '';
+            filesArray.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const div = document.createElement('div');
+                    div.classList.add('position-relative');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('rounded', 'border');
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.margin = '5px';
+
+                    const btn = document.createElement('button');
+                    btn.innerText = '×';
+                    btn.type = 'button';
+                    btn.classList.add('btn', 'btn-sm', 'btn-danger', 'position-absolute');
+                    btn.style.top = '0';
+                    btn.style.right = '0';
+                    btn.onclick = function () {
+                        filesArray.splice(index, 1);
+                        updateInputFiles();
+                        updatePreview();
+                    };
+
+                    div.appendChild(img);
+                    div.appendChild(btn);
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateInputFiles() {
+            const dataTransfer = new DataTransfer();
+            filesArray.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+        }
+    </script>
+}

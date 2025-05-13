@@ -11,10 +11,6 @@ namespace WebShopSolution.Data.Entities
         [Required]
         public string ImagePath { get; set; }
 
-        public string? Caption { get; set; }
-
-        public bool IsDefault { get; set; } = false;
-
         public int SortOrder { get; set; }
 
         // Foreign key to Product

@@ -1,0 +1,97 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Product.ProductViewModel
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2>Product Details</h2>
+
+<div>
+    <h4>@Model.ProductName</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+
+        <dt class="col-sm-3">Base Price</dt>
+        <dd class="col-sm-9">@Model.BasePrice VND</dd>
+
+        <dt class="col-sm-3">Quantity</dt>
+        <dd class="col-sm-9">@Model.Quantity</dd>
+
+        <dt class="col-sm-3">Category</dt>
+        <dd class="col-sm-9">@Model.CategoryName</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">
+            @Model.Status
+        </dd>
+
+        <dt class="col-sm-3">Images</dt>
+        <dd class="col-sm-9">
+            @if (Model.ProductImages != null && Model.ProductImages.Any())
+            {
+                foreach (var image in Model.ProductImages)
+                {
+                    <img src="@image.ImagePath" width="120" height="120" class="img-thumbnail mr-2" />
+                }
+            }
+            else
+            {
+                <span>No images uploaded.</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Variants</dt>
+        <dd class="col-sm-9">
+            @if (Model.Variants != null && Model.Variants.Any())
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Attributes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var variant in Model.Variants)
+                        {
+                            <tr>
+                                <td>@variant.Id</td>
+                                <td>@variant.Sku</td>
+                                <td>@variant.Price.ToString("N0") VND</td>
+                                <td>@variant.Stock</td>
+                                <td>@variant.status</td>
+                                <td>
+                                    @if (variant.Attributes != null && variant.Attributes.Any())
+                                    {
+                                        <ul>
+                                            @foreach (var attr in variant.Attributes)
+                                            {
+                                                <li><strong>@attr.AttributeName:</strong> @attr.AttributeValue</li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <span>No attributes</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <span>No variants.</span>
+            }
+        </dd>
+    </dl>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

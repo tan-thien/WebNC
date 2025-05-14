@@ -41,21 +41,31 @@ namespace WebShopSolution.Admin.Controllers
             return View();
         }
 
-
-
-
         [HttpPost]
-        public async Task<IActionResult> Create(ProductCreateViewModel model)
+        public async Task<IActionResult> Create(ProductCreateViewModel model, IFormCollection form)
         {
-            Console.WriteLine("Status: " + model.Status); // Log giá trị Status
+            // RÀNG BUỘC THỦ CÔNG
+            if (!model.IsVariantProduct)
+            {
+                if (model.BasePrice == null || model.BasePrice <= 0)
+                {
+                    ModelState.AddModelError(nameof(model.BasePrice), "Base price is required for non-variant products.");
+                }
 
+                if (model.Quantity == null || model.Quantity < 0)
+                {
+                    ModelState.AddModelError(nameof(model.Quantity), "Quantity is required for non-variant products.");
+                }
+            }
             if (!ModelState.IsValid)
             {
-                await LoadCategoriesAsync(); // Load lại nếu lỗi
+                await LoadCategoriesAsync();
                 return View(model);
             }
 
             var client = _httpClientFactory.CreateClient();
+
+            // 1. Tạo Product
             var productCreate = new ProductCreateRequest
             {
                 ProductName = model.ProductName,
@@ -69,17 +79,61 @@ namespace WebShopSolution.Admin.Controllers
             var response = await client.PostAsJsonAsync("https://localhost:7236/api/product", productCreate);
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("API ERROR: " + error);
-
                 ModelState.AddModelError("", "Tạo sản phẩm thất bại.");
-                await LoadCategoriesAsync(); // Load lại nếu lỗi
+                await LoadCategoriesAsync();
                 return View(model);
             }
 
             var productId = await GetProductIdByNameAsync(client, model.ProductName);
 
-            // Lưu ảnh nếu có
+            // 2. Nếu có biến thể thì tạo variant
+            if (model.IsVariantProduct)
+            {
+                var variantSKUs = form["VariantSKU"];
+                var variantPrices = form["VariantPrice"];
+                var variantStocks = form["VariantStock"];
+                var variantStatus = form["VariantStatus"];
+                var allAttributeNames = form["AttributeNames"];
+                var allAttributeValues = form["AttributeValues"];
+
+                int attributeIndex = 0;
+
+                for (int i = 0; i < variantSKUs.Count; i++)
+                {
+                    var attributes = new List<ProductVariantAttributeCreateRequest>();
+
+                    // Giả định mỗi variant có ít nhất 1 cặp name/value, và các cặp này nhóm theo thứ tự.
+                    // Có thể cần xử lý kỹ hơn nếu phức tạp.
+                    while (attributeIndex < allAttributeNames.Count && !string.IsNullOrWhiteSpace(allAttributeNames[attributeIndex]))
+                    {
+                        // Stop collecting attributes when next variant's field appears (optional logic)
+                        if (i < variantSKUs.Count - 1 &&
+                            allAttributeNames[attributeIndex + 1] == variantSKUs[i + 1]) break;
+
+                        attributes.Add(new ProductVariantAttributeCreateRequest
+                        {
+                            AttributeName = allAttributeNames[attributeIndex],
+                            AttributeValue = allAttributeValues[attributeIndex]
+                        });
+                        attributeIndex++;
+                    }
+
+                    var variantRequest = new ProductVariantCreateRequest
+                    {
+                        ProductId = productId,
+                        Sku = variantSKUs[i],
+                        Price = int.Parse(variantPrices[i]),
+                        Stock = int.Parse(variantStocks[i]),
+                        Status = variantStatus[i],
+                        Attributes = attributes
+                    };
+
+                    await client.PostAsJsonAsync("https://localhost:7236/api/productvariants", variantRequest);
+                }
+            }
+
+
+            // 3. Upload ảnh
             if (model.Images != null && model.Images.Any())
             {
                 var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", $"product_{productId}");
@@ -95,21 +149,20 @@ namespace WebShopSolution.Admin.Controllers
                         await image.CopyToAsync(stream);
                     }
 
-                    // Gửi request lưu ảnh vào DB qua API
                     var imageRequest = new ProductImageCreateRequest
                     {
                         ProductId = productId,
-                        ImagePath = $"/images/product_{productId}/{fileName}", // lưu path tương đối
-                        SortOrder = 0 // bạn có thể gán tự động hoặc cho người dùng chọn
+                        ImagePath = $"/images/product_{productId}/{fileName}",
+                        SortOrder = 0
                     };
 
                     await client.PostAsJsonAsync("https://localhost:7236/api/productimage", imageRequest);
                 }
-
             }
 
             return RedirectToAction("Index");
         }
+
 
 
 
@@ -123,6 +176,8 @@ namespace WebShopSolution.Admin.Controllers
 
             var images = await client.GetFromJsonAsync<List<ProductImageViewModel>>($"https://localhost:7236/api/productimage/by-product/{id}");
 
+            var variants = await client.GetFromJsonAsync<List<ProductVariantViewModel>>($"https://localhost:7236/api/productvariants/product/{id}");
+
             var model = new ProductUpdateViewModel
             {
                 IdProduct = product.IdProduct,
@@ -132,7 +187,8 @@ namespace WebShopSolution.Admin.Controllers
                 Quantity = product.Quantity,
                 Status = product.Status,
                 IdCate = product.IdCate,
-                ExistingImages = images
+                ExistingImages = images,
+                Variants = variants // <-- thêm dòng này
             };
 
             await LoadCategoriesAsync();
@@ -140,10 +196,19 @@ namespace WebShopSolution.Admin.Controllers
         }
 
 
+
         [HttpPost]
         public async Task<IActionResult> Edit(ProductUpdateViewModel model)
         {
+            // Kiểm tra ràng buộc nếu không phải sản phẩm có biến thể
+            if (!model.IsVariantProduct)
+            {
+                if (model.BasePrice == null || model.BasePrice <= 0)
+                    ModelState.AddModelError(nameof(model.BasePrice), "Base price is required for non-variant products.");
 
+                if (model.Quantity == null || model.Quantity < 0)
+                    ModelState.AddModelError(nameof(model.Quantity), "Quantity is required for non-variant products.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -158,13 +223,11 @@ namespace WebShopSolution.Admin.Controllers
                 IdProduct = model.IdProduct,
                 ProductName = model.ProductName,
                 Description = model.Description,
-                BasePrice = model.BasePrice,
-                Quantity = model.Quantity,
+                BasePrice = model.IsVariantProduct ? null : model.BasePrice,
+                Quantity = model.IsVariantProduct ? null : model.Quantity,
                 Status = model.Status,
                 IdCate = model.IdCate
             };
-
-
 
             var response = await client.PutAsJsonAsync("https://localhost:7236/api/product", updateRequest);
             if (!response.IsSuccessStatusCode)
@@ -203,6 +266,7 @@ namespace WebShopSolution.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
 
 
         [HttpGet]

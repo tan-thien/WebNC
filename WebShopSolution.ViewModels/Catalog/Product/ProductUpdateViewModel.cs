@@ -24,8 +24,12 @@ namespace WebShopSolution.ViewModels.Catalog.Product
         public string? Status { get; set; }
 
         public int IdCate { get; set; }
+        public bool IsVariantProduct { get; set; }
 
         public List<IFormFile>? Images { get; set; }
         public List<ProductImageViewModel>? ExistingImages { get; set; }
+
+        public List<ProductVariantViewModel>? Variants { get; set; }
+
     }
 }

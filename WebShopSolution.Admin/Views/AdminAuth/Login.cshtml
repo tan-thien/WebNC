@@ -4,24 +4,38 @@
     Layout = null;
 }
 
-<h2>Admin Login</h2>
+<link rel="stylesheet" href="/css/login.css" asp-append-version="true" />
+
+
+
+<div>
+    <div class="bg"></div>
+
+    <div class="star-field">
+        <div class="layer"></div>
+        <div class="layer"></div>
+        <div class="layer"></div>
+    </div>
+
 
 <form asp-action="Login" method="post">
-    <div>
-        <label>Username</label>
-        <input asp-for="UserName" />
-        <span asp-validation-for="UserName"></span>
-    </div>
+        <h3 style="font-family: 'Poppins', sans-serif; ">LOG IN</h3>
+        <div class="form-group">
+            <label asp-for="UserName" class="control-label"></label>
+            <input asp-for="UserName" class="form-control" placeholder="UserName" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label>Password</label>
-        <input asp-for="PassWord" type="password" />
-        <span asp-validation-for="PassWord"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="PassWord" class="control-label"></label>
+            <input asp-for="PassWord" class="form-control" type="passWord" placeholder="PassWord" />
+            <span asp-validation-for="PassWord" class="text-danger"></span>
+        </div>
 
-    <button type="submit">Login</button>
+
+        <button type="submit" class="btn btn-primary">Log in</button>
 </form>
-
+</div>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

@@ -14,10 +14,10 @@ namespace WebShopSolution.Data.Entities
 
         public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Base price is required.")]
+
         public int? BasePrice { get; set; }
 
-        [Required(ErrorMessage = "Quantity is required.")]
+
         public int? Quantity { get; set; }
 
         public string? Status { get; set; }

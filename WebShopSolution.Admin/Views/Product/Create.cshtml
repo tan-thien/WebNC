@@ -19,11 +19,67 @@
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
+
+    <!-- Checkbox chọn có biến thể hay không -->
     <div class="form-group">
         <label asp-for="IsVariantProduct"></label>
-        <input asp-for="IsVariantProduct" type="checkbox" class="form-check-input" />
+        <input asp-for="IsVariantProduct" type="checkbox" class="form-check-input" id="isVariantCheckbox" />
         <span asp-validation-for="IsVariantProduct" class="text-danger"></span>
     </div>
+
+
+
+    <!-- Phần nhập thông tin biến thể -->
+        <div id="variantSection" style="display:none; margin-top: 20px;">
+            <h4>Product Variants</h4>
+
+            <div id="variantList">
+                <!-- Một dòng variant -->
+                <div class="variant-item border rounded p-2 mb-2">
+                    <div class="form-group">
+                        <label>SKU</label>
+                        <input type="text" name="VariantSKU" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" step="0.01" name="VariantPrice" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" name="VariantStock" class="form-control" />
+                    </div>
+
+                <div class="form-group">
+                    <label for="VariantStatus">Status</label>
+                    <select name="VariantStatus" class="form-control" id="VariantStatus">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                    <div class="form-group">
+                        <label>Attributes</label>
+                        <div class="attribute-group">
+                            <div class="d-flex mb-2">
+                                <input type="text" name="AttributeNames" class="form-control me-2" placeholder="Attribute Name" />
+                                <input type="text" name="AttributeValues" class="form-control me-2" placeholder="Attribute Value" />
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeAttribute(this)">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="addAttribute(this)">+ Add Attribute</button>
+                    </div>
+
+                    <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeVariant(this)">× Remove Variant</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addVariant()">+ Add Variant</button>
+        </div>
+
+
+
 
     <div class="form-group">
         <label asp-for="BasePrice"></label>
@@ -73,6 +129,74 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
+
+    <script>
+        function addVariant() {
+            const template = document.querySelector('.variant-item');
+            const clone = template.cloneNode(true);
+            // Clear inputs
+            clone.querySelectorAll('input').forEach(input => input.value = '');
+            // Remove extra attributes except first
+            const attributeGroup = clone.querySelector('.attribute-group');
+            attributeGroup.innerHTML = `
+                <div class="d-flex mb-2">
+                    <input type="text" name="AttributeNames" class="form-control me-2" placeholder="Attribute Name" />
+                    <input type="text" name="AttributeValues" class="form-control me-2" placeholder="Attribute Value" />
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAttribute(this)">×</button>
+                </div>
+            `;
+            document.getElementById('variantList').appendChild(clone);
+        }
+
+        function removeVariant(btn) {
+            const item = btn.closest('.variant-item');
+            if (document.querySelectorAll('.variant-item').length > 1) {
+                item.remove();
+            } else {
+                alert("At least one variant is required.");
+            }
+        }
+
+        function addAttribute(btn) {
+            const group = btn.previousElementSibling;
+            const div = document.createElement("div");
+            div.className = "d-flex mb-2";
+            div.innerHTML = `
+                <input type="text" name="AttributeNames" class="form-control me-2" placeholder="Attribute Name" />
+                <input type="text" name="AttributeValues" class="form-control me-2" placeholder="Attribute Value" />
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeAttribute(this)">×</button>
+            `;
+            group.appendChild(div);
+        }
+
+        function removeAttribute(btn) {
+            btn.parentElement.remove();
+        }
+    </script>
+
+
+    <script>
+        document.getElementById("isVariantCheckbox").addEventListener("change", function () {
+            const section = document.getElementById("variantSection");
+            section.style.display = this.checked ? "block" : "none";
+        });
+
+        // function addAttribute() {
+        //     const list = document.getElementById("attributeList");
+        //     const div = document.createElement("div");
+        //     div.className = "d-flex mb-2";
+        //     div.innerHTML = `
+        //         <input type="text" name="AttributeNames" class="form-control me-2" placeholder="Attribute Name" />
+        //         <input type="text" name="AttributeValues" class="form-control me-2" placeholder="Attribute Value" />
+        //         <button type="button" class="btn btn-danger btn-sm" onclick="removeAttribute(this)">×</button>
+        //     `;
+        //     list.appendChild(div);
+        // }
+
+        // function removeAttribute(btn) {
+        //     btn.parentElement.remove();
+        // }
+    </script>
 
     <script>
         const input = document.getElementById('imageUpload');
@@ -134,4 +258,8 @@
             input.files = dataTransfer.files;
         }
     </script>
+
+
+
+
 }

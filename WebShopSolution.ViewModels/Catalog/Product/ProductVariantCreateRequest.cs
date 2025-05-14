@@ -7,6 +7,7 @@ namespace WebShopSolution.ViewModels.Catalog.Product
         public string Sku { get; set; }          // Mã SKU riêng cho biến thể
         public int Price { get; set; }
         public int Stock { get; set; }
+        public string Status { get; set; }
 
         // Nếu có thêm thuộc tính cho biến thể (màu sắc, size...) thì thêm:
         public List<ProductVariantAttributeCreateRequest> Attributes { get; set; } = new();

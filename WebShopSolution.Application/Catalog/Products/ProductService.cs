@@ -43,12 +43,13 @@ namespace WebShopSolution.Application.Catalog.Products
                 {
                     Id = pi.Id,
                     ImagePath = pi.ImagePath,
-                    SortOrder = pi.SortOrder,
+                    ProductId=pi.ProductId,
                 }).ToList() ?? new List<ProductImageViewModel>(),
 
                 Variants = p.Variants?.Select(v => new ProductVariantViewModel
                 {
                     Id = v.Id,
+                    ProductId =v.ProductId,
                     Sku = v.Sku,
                     Stock = v.Stock,
                     Price = v.Price,
@@ -81,21 +82,26 @@ namespace WebShopSolution.Application.Catalog.Products
                 Description = product.Description,
                 BasePrice = product.BasePrice,
                 Quantity = product.Quantity,
+                IdCate= product.IdCate,
                 CategoryName = product.Category?.CateName,
                 Status = product.Status,
                 ProductImages = product.ProductImages.Select(img => new ProductImageViewModel
                 {
                     Id = img.Id,
-                    ImagePath = img.ImagePath
+                    ImagePath = img.ImagePath,
+                    ProductId = img.ProductId,
                 }).ToList(),
                 Variants = product.Variants.Select(v => new ProductVariantViewModel
                 {
                     Id = v.Id,
+                    ProductId=v.ProductId,
                     Sku = v.Sku,
                     Price = v.Price,
                     Stock = v.Stock,
+                    Status= v.Status,
                     Attributes = v.Attributes.Select(a => new ProductVariantAttributeViewModel
                     {
+                        Id=a.Id,
                         AttributeName = a.AttributeName,
                         AttributeValue = a.AttributeValue
                     }).ToList()

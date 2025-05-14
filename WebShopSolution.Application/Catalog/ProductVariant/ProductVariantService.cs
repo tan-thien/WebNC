@@ -25,6 +25,7 @@ namespace WebShopSolution.Application.Catalog.ProductVariant
                 Sku = request.Sku,
                 Price = request.Price,
                 Stock = request.Stock,
+                Status = request.Status,
                 Attributes = request.Attributes.Select(a => new ProductVariantAttribute
                 {
                     AttributeName = a.AttributeName,
@@ -42,7 +43,7 @@ namespace WebShopSolution.Application.Catalog.ProductVariant
                 Sku = variant.Sku,
                 Price = variant.Price,
                 Stock = variant.Stock,
-                status = variant.Status,
+                Status = variant.Status,
                 Attributes = variant.Attributes.Select(a => new ProductVariantAttributeViewModel
                 {
                     Id = a.Id,
@@ -67,7 +68,7 @@ namespace WebShopSolution.Application.Catalog.ProductVariant
                 Sku = v.Sku,
                 Price = v.Price,
                 Stock = v.Stock,
-                status = v.Status,
+                Status = v.Status,
                 Attributes = v.Attributes.Select(a => new ProductVariantAttributeViewModel
                 {
                     Id = a.Id,

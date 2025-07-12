@@ -1,0 +1,36 @@
+﻿@model List<WebShopSolution.ViewModels.Catalog.Account.AccountViewModel>
+
+<h2>Account Management</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Account</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>UserName</th>
+            <th>Status</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var acc in Model)
+        {
+            <tr>
+                <td>@acc.IdAcc</td>
+                <td>@acc.UserName</td>
+                <td>@acc.Status</td>
+                <td>@acc.Role</td>
+                <td>
+                    <form method="post" asp-action="ChangeRole">
+                        <input type="hidden" name="id" value="@acc.IdAcc" />
+                        <select name="role" onchange="this.form.submit()" class="form-control">
+                            <option value="User" selected="@("User" == acc.Role)">User</option>
+                            <option value="Admin" selected="@("Admin" == acc.Role)">Admin</option>
+                        </select>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

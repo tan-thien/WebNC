@@ -1,4 +1,4 @@
-﻿namespace WebShopSolution.ViewModels.Catalog.Product
+﻿namespace WebShopSolution.ViewModels.Catalog.ProductVariantAttributes
 {
     public class ProductVariantAttributeViewModel
     {

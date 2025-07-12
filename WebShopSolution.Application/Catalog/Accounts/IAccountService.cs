@@ -10,12 +10,17 @@ namespace WebShopSolution.Application.Catalog.Accounts
 {
     public interface IAccountService
     {
-        Task<bool> RegisterAsync(AccountCreateRequest request);
+        Task<int?> RegisterAsync(AccountCreateRequest request);
         Task<AccountViewModel?> LoginAsync(AccountLoginRequest request);
         Task<List<AccountViewModel>> GetAllAsync();
         Task<bool> UpdateAsync(AccountUpdateRequest request);
         Task<bool> DeleteAsync(int id);
         Task<bool> ChangePasswordAsync(ChangePasswordRequest request);
+
+
+        Task<int?> CreateAsync(AccountCreateRequest request);
+        Task<bool> ChangeRoleAsync(int idAcc, string newRole);
+
     }
 
 }

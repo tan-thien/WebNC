@@ -10,6 +10,6 @@ namespace WebShopSolution.ViewModels.Catalog.Cart
     public class CartCreateRequest
     {
         [Required]
-        public int IdCus { get; set; }
+        public int IdAcc { get; set; }
     }
 }

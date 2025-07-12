@@ -1,0 +1,27 @@
+﻿<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.IdOrder</td>
+                <td>@order.CustomerName</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                <td><span class="badge bg-info">@order.OrderStatus</span></td>
+                <td>@order.TotalAmount.ToString("N0") đ</td>
+                <td>
+                    <a href="@Url.Action("Detail", "AdminOrder", new { id = order.IdOrder })" class="btn btn-sm btn-primary">Chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -24,6 +24,6 @@ namespace WebShopSolution.Data.Entities
 
         public ICollection<OrderDetail> OrderDetails { get; set; }
 
-        public ICollection<ProductVariantAttribute> Attributes { get; set; }
+        public ICollection<ProductVariantAttribute> ProductVariantAttributes { get; set; }
     }
 }

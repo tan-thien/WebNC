@@ -24,6 +24,8 @@ namespace WebShopSolution.Data.EF
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<ProductVariantAttribute> ProductVariantAttributes { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,7 +43,29 @@ namespace WebShopSolution.Data.EF
                 .HasForeignKey(c => c.ParentId)
                 .OnDelete(DeleteBehavior.Restrict); // Tránh xoá cascade gây vòng lặp
 
+            //cấu hình quan hệ giữa các voucher
+            // ▸ Voucher.Code UNIQUE
+            modelBuilder.Entity<Voucher>()
+                .HasIndex(v => v.Code)
+                .IsUnique();
 
+            // ▸ CustomerVoucher:
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(cv => cv.Customer)
+                .WithMany(c => c.CustomerVouchers)
+                .HasForeignKey(cv => cv.IdCus)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(cv => cv.Voucher)
+                .WithMany(v => v.CustomerVouchers)
+                .HasForeignKey(cv => cv.VoucherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // (tuỳ chọn) cặp CustomerId + VoucherId UNIQUE -> ngăn trùng
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasIndex(cv => new { cv.IdCus, cv.VoucherId })
+                .IsUnique();
             // Nếu có Fluent API khác thì đặt tại đây
         }
     }

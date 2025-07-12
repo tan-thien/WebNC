@@ -11,6 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.0.5" />
+    <PackageReference Include="QuestPDF" Version="2025.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />
     <ProjectReference Include="..\WebShopSolution.ViewModels\WebShopSolution.ViewModels.csproj" />
   </ItemGroup>

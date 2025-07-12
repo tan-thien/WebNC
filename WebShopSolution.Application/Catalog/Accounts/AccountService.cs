@@ -16,22 +16,23 @@ namespace WebShopSolution.Application.Catalog.Accounts
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> RegisterAsync(AccountCreateRequest request)
+        public async Task<int?> RegisterAsync(AccountCreateRequest request)
         {
             var existing = await _unitOfWork.Accounts.GetByUsernameAsync(request.UserName);
-            if (existing != null) return false;
+            if (existing != null) return null; // username đã tồn tại
 
             var account = new Account
             {
                 UserName = request.UserName,
-                PassWord = request.PassWord, // Gợi ý: Mã hoá mật khẩu ở đây nếu cần
-                Status = request.Status,
-                Role = request.Role
+                PassWord = request.PassWord, // Bạn nhớ mã hóa mật khẩu nhé
+                Status = request.Status ?? "Active",
+                Role = request.Role ?? "User"
             };
 
             await _unitOfWork.Accounts.AddAsync(account);
             await _unitOfWork.SaveChangesAsync();
-            return true;
+
+            return account.IdAcc; // trả về Id tài khoản mới tạo
         }
 
         public async Task<AccountViewModel?> LoginAsync(AccountLoginRequest request)
@@ -95,5 +96,52 @@ namespace WebShopSolution.Application.Catalog.Accounts
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
+
+
+
+        public async Task<int?> CreateAsync(AccountCreateRequest request)
+        {
+            var existing = await _unitOfWork.Accounts.GetByUsernameAsync(request.UserName);
+            if (existing != null) return null; // Tài khoản đã tồn tại
+
+            var account = new Account
+            {
+                UserName = request.UserName,
+                PassWord = request.PassWord, // Nên mã hóa
+                Status = request.Status ?? "Active",
+                Role = request.Role ?? "User"
+            };
+
+            await _unitOfWork.Accounts.AddAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Nếu là User thì thêm Customer
+            if (account.Role == "User")
+            {
+                var customer = new Customer
+                {
+                    CusName = request.CusName,
+                    Phone = request.Phone,
+                    Address = request.Address,
+                    IdAcc = account.IdAcc
+                };
+                await _unitOfWork.Customers.AddAsync(customer);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            return account.IdAcc;
+        }
+        public async Task<bool> ChangeRoleAsync(int idAcc, string newRole)
+        {
+            var account = await _unitOfWork.Accounts.GetByIdAsync(idAcc);
+            if (account == null) return false;
+
+            account.Role = newRole;
+            await _unitOfWork.Accounts.UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+
     }
 }

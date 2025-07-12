@@ -1,0 +1,81 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Account.AccountCreateRequest
+
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+        <h3 class="text-center mb-4" style="color: #007bff;">Tạo tài khoản mới</h3>
+
+        <form asp-action="Register" method="post">
+            <div class="form-group mb-3">
+                <label asp-for="UserName" class="form-label fw-semibold"></label>
+                <input asp-for="UserName" class="form-control" placeholder="Tên đăng nhập" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PassWord" class="form-label fw-semibold"></label>
+                <input asp-for="PassWord" class="form-control" type="password" placeholder="Mật khẩu" />
+                <span asp-validation-for="PassWord" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CusName" class="form-label fw-semibold"></label>
+                <input asp-for="CusName" class="form-control" placeholder="Họ và tên" />
+                <span asp-validation-for="CusName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Phone" class="form-label fw-semibold"></label>
+                <input asp-for="Phone" class="form-control" placeholder="Số điện thoại" />
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Address" class="form-label fw-semibold"></label>
+                <input asp-for="Address" class="form-control" placeholder="Địa chỉ" />
+                <span asp-validation-for="Address" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn w-100 btn-register-custom">Đăng ký</button>
+        </form>
+
+        <p class="mt-3 text-center">
+            Đã có tài khoản?
+            <a asp-controller="Account" asp-action="Login" class="link-orange">Đăng nhập tại đây</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
+
+<style>
+    .btn-register-custom {
+        background-color: #007bff;
+        color: #ff6600;
+        border: 2px solid #007bff;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+
+        .btn-register-custom:hover {
+            background-color: #fff;
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+    .link-orange {
+        color: #ff6600;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        .link-orange:hover {
+            color: #cc5200;
+            text-decoration: underline;
+        }
+</style>

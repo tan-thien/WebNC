@@ -75,7 +75,7 @@ namespace WebShopSolution.Data.Repositories.Products
                 .Include(p => p.Category)
                 .Include(p => p.ProductImages)
                 .Include(p => p.Variants)
-                    .ThenInclude(v => v.Attributes)
+                    .ThenInclude(v => v.ProductVariantAttributes)
                 .FirstOrDefaultAsync(p => p.IdProduct == id);
         }
 

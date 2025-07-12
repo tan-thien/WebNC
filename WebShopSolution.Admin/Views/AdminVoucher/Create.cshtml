@@ -1,0 +1,141 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Voucher.VoucherCreateRequest
+
+<h2>Tạo mới Voucher</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label>Chế độ tạo</label>
+        <select asp-for="Mode" class="form-control" onchange="onModeChange(this.value)">
+            <option value="manual">Tự cấu hình</option>
+            <option value="preset">Chọn mẫu có sẵn</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="presetDiv" style="display: none;">
+        <label>Mẫu có sẵn</label>
+        <select asp-for="PresetName" class="form-control" onchange="fillPresetInfo(this.value)">
+            <option value="">-- Chọn mẫu --</option>
+            <option value="FREESHIP50K">FREESHIP50K</option>
+            <option value="GIAO_MIEN_PHI">GIAO_MIEN_PHI</option>
+            <option value="SALE10PERCENT">SALE10PERCENT</option>
+            <option value="DANG_KY_MOI">DANG_KY_MOI</option>
+            <option value="TUAN_LE_VANG">TUAN_LE_VANG</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Code">Mã voucher</label>
+        <input asp-for="Code" class="form-control" id="Code" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Name">Tên</label>
+        <input asp-for="Name" class="form-control" id="Name" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description">Mô tả</label>
+        <textarea asp-for="Description" class="form-control" id="Description"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DiscountType">Loại giảm giá</label>
+        <select asp-for="DiscountType" class="form-control" id="DiscountType">
+            <option value="0">Giảm tiền cố định</option>
+            <option value="1">Giảm theo %</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DiscountValue">Giá trị giảm</label>
+        <input asp-for="DiscountValue" class="form-control" id="DiscountValue" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MaxDiscountValue">Giảm tối đa (nếu %)</label>
+        <input asp-for="MaxDiscountValue" class="form-control" id="MaxDiscountValue" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantity">Số lượng phát hành</label>
+        <input asp-for="Quantity" class="form-control" id="Quantity" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UserLimit">Giới hạn số lần khách dùng</label>
+        <input asp-for="UserLimit" class="form-control" id="UserLimit" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartDate">Từ ngày</label>
+        <input asp-for="StartDate" type="date" class="form-control" id="StartDate" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndDate">Đến ngày</label>
+        <input asp-for="EndDate" type="date" class="form-control" id="EndDate" />
+    </div>
+
+    <div class="form-check mt-2">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Tạo mới</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
+</form>
+
+@section Scripts {
+    <script>
+        const presets = {
+            "FREESHIP50K": {
+                Code: "FREESHIP50K", Name: "Giảm 50K cho đơn từ 500K", Description: "Giảm 50K", DiscountType: 0,
+                DiscountValue: 50000, MaxDiscountValue: "", Quantity: 100, UserLimit: 1
+            },
+            "GIAO_MIEN_PHI": {
+                Code: "GIAO_MIEN_PHI", Name: "Giao hàng miễn phí", Description: "Tương đương freeship", DiscountType: 0,
+                DiscountValue: 30000, MaxDiscountValue: "", Quantity: 100, UserLimit: 1
+            },
+            "SALE10PERCENT": {
+                Code: "SALE10PERCENT", Name: "Giảm 10%", Description: "Tối đa 100K", DiscountType: 1,
+                DiscountValue: 10, MaxDiscountValue: 100000, Quantity: 50, UserLimit: 1
+            },
+            "DANG_KY_MOI": {
+                Code: "DANG_KY_MOI", Name: "Cho khách đăng ký mới", Description: "Giảm 20K", DiscountType: 0,
+                DiscountValue: 20000, MaxDiscountValue: "", Quantity: 200, UserLimit: 1
+            },
+            "TUAN_LE_VANG": {
+                Code: "TUAN_LE_VANG", Name: "Tuần lễ vàng", Description: "Giảm 15%", DiscountType: 1,
+                DiscountValue: 15, MaxDiscountValue: 120000, Quantity: 50, UserLimit: 1
+            }
+        };
+
+        function onModeChange(mode) {
+            const presetDiv = document.getElementById('presetDiv');
+            presetDiv.style.display = (mode === 'preset') ? 'block' : 'none';
+        }
+
+        function fillPresetInfo(presetKey) {
+            const p = presets[presetKey];
+            if (!p) return;
+            document.getElementById("Code").value = p.Code;
+            document.getElementById("Name").value = p.Name;
+            document.getElementById("Description").value = p.Description;
+            document.getElementById("DiscountType").value = p.DiscountType;
+            document.getElementById("DiscountValue").value = p.DiscountValue;
+            document.getElementById("MaxDiscountValue").value = p.MaxDiscountValue;
+            document.getElementById("Quantity").value = p.Quantity;
+            document.getElementById("UserLimit").value = p.UserLimit;
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("StartDate").value = today;
+            const end = new Date();
+            end.setDate(end.getDate() + 7);
+            document.getElementById("EndDate").value = end.toISOString().split('T')[0];
+        }
+
+        window.onload = function () {
+            onModeChange(document.querySelector('[name="Mode"]').value);
+        }
+    </script>
+}

@@ -1,0 +1,320 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Product.ProductViewModel
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
+
+@{
+    ViewData["Title"] = Model.ProductName;
+    var images = Model.ProductImages ?? new List<WebShopSolution.ViewModels.Catalog.Product.ProductImageViewModel>();
+}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Hình ảnh -->
+        <div class="col-md-6">
+            <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        var imgPath = string.IsNullOrEmpty(images[i].ImagePath) ? "/images/no-image.png" : images[i].ImagePath;
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="@imgPath" class="d-block w-100" style="max-height: 450px; object-fit: cover;" alt="@Model.ProductName" />
+                        </div>
+                    }
+                </div>
+                @if (images.Count > 1)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                }
+            </div>
+
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                @for (int i = 0; i < images.Count; i++)
+                {
+                    var path = string.IsNullOrEmpty(images[i].ImagePath) ? "/images/no-image.png" : images[i].ImagePath;
+                    <img src="@path"
+                         class="img-thumbnail thumbnail-selector @(i == 0 ? "active" : "")"
+                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                         data-bs-target="#productCarousel"
+                         data-bs-slide-to="@i"
+                         alt="@Model.ProductName - Thumbnail @i" />
+                }
+            </div>
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-md-6">
+            <h2>@Model.ProductName</h2>
+            <p class="text-muted">Loại: @Model.CategoryName</p>
+            <h4 class="text-danger" id="variantPrice">@string.Format("{0:N0} VNĐ", Model.BasePrice)</h4>
+
+            <!-- VOUCHER toggle -->
+            @if (ViewBag.Vouchers is List<WebShopSolution.ViewModels.Catalog.Voucher.VoucherViewModel> vouchers && vouchers.Any())
+            {
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-success btn-sm" id="btnToggleVouchers">
+                        🎁 Xem ưu đãi
+                    </button>
+
+                    <div id="voucherList" class="border p-3 mt-2 bg-light text-dark rounded d-none">
+                        <strong>Ưu đãi đang diễn ra:</strong>
+                        <ul class="mb-0">
+                            @foreach (var v in vouchers)
+                            {
+                                <li class="d-flex align-items-center justify-content-between mb-1">
+                                    <div>
+                                        <span class="badge bg-warning text-dark me-2">@v.Code</span>
+                                        <span>@v.DiscountText (HSD: @v.EndDate.ToString("dd/MM/yyyy"))</span>
+                                    </div>
+                                    <button class="btn btn-outline-secondary btn-sm copy-code-btn" data-code="@v.Code">
+                                        📋 Sao chép
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <!-- Thuộc tính -->
+            @if (Model.Variants != null && Model.Variants.Any())
+            {
+                var attributeGroups = Model.Variants
+                .SelectMany(v => v.Attributes)
+                .GroupBy(a => a.AttributeName)
+                .ToList();
+
+                <div>
+                    @foreach (var group in attributeGroups)
+                    {
+                        <p><strong>Chọn @group.Key:</strong></p>
+                        <div class="mb-3">
+                            @foreach (var value in group.Select(a => a.AttributeValue).Distinct())
+                            {
+                                <button type="button"
+                                        class="btn btn-outline-dark btn-sm me-2 mb-2 attribute-btn"
+                                        data-attribute-name="@group.Key"
+                                        data-attribute-value="@value">
+                                    @value
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <input type="hidden" id="selectedVariantId" value="" />
+
+            <div class="mt-4 d-flex align-items-center">
+                <input type="number" id="quantity-@Model.IdProduct" class="form-control" style="width: 80px;" value="1" min="1" />
+                <button id="btnAddToCart" class="btn btn-warning ms-2"
+                        data-product-id="@Model.IdProduct"
+                        data-product-name="@Model.ProductName">
+                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                </button>
+                <button class="btn btn-outline-dark">Mua ngay</button>
+            </div>
+
+            <div class="mt-3">
+                <span>Số lượng trong giỏ: </span><span id="cartItemCount">0</span>
+            </div>
+
+            <p class="mt-4"><strong>Mô tả:</strong></p>
+            <p>@Model.Description</p>
+        </div>
+
+        <!-- Thông tin chi tiết, bảo quản và chính sách -->
+        <div class="product-details-section mt-5">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Thông tin sản phẩm -->
+                    <div class="col-md-6">
+                        <div class="detail-box shadow-sm p-4 rounded bg-white">
+                            <h4 class="section-title text-primary"><i class="bi bi-info-circle"></i> Thông tin sản phẩm</h4>
+                            <ul class="list-unstyled ps-3 mt-3">
+                                <li><strong>Chất liệu:</strong> Vải chân cua cao cấp, co giãn nhẹ</li>
+                                <li><strong>Họa tiết:</strong> In lụa kỹ thuật số, bền màu</li>
+                                <li><strong>Size:</strong> Đầy đủ S / M / L / XL (form unisex)</li>
+                                <li><strong>Thương hiệu:</strong> La Lune Fashion</li>
+                                <li><strong>Sản xuất:</strong> Việt Nam - Hàng nội địa</li>
+                                <li><strong>Màu sắc:</strong> Thiết kế riêng biệt theo từng bộ sưu tập</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Hướng dẫn bảo quản -->
+                    <div class="col-md-6">
+                        <div class="detail-box shadow-sm p-4 rounded bg-white">
+                            <h4 class="section-title text-primary"><i class="bi bi-droplet-half"></i> Hướng dẫn bảo quản</h4>
+                            <ul class="list-unstyled ps-3 mt-3">
+                                <li>✔ Giặt bằng tay/lạnh với đồ cùng màu</li>
+                                <li>✔ Không dùng chất tẩy mạnh</li>
+                                <li>✔ Lộn trái sản phẩm khi giặt & ủi</li>
+                                <li>✔ Không sấy khô bằng máy ở nhiệt độ cao</li>
+                                <li>✔ Ưu tiên ủi hơi nước nhẹ</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Chính sách đổi trả -->
+                    <div class="col-12">
+                        <div class="detail-box shadow-sm p-4 rounded bg-white mt-3">
+                            <h4 class="section-title text-danger"><i class="bi bi-shield-check"></i> Chính sách đổi/trả</h4>
+                            <ul class="list-unstyled ps-3 mt-3">
+                                <li>🔁 Đổi size hoặc mẫu trong vòng <strong>30 ngày</strong></li>
+                                <li>🔒 Sản phẩm phải còn nguyên tag, chưa giặt hoặc sử dụng</li>
+                                <li>💳 Có hóa đơn/biên lai khi đổi</li>
+                                <li>❌ Không áp dụng với sản phẩm giảm giá & phụ kiện</li>
+                                <li>📞 Liên hệ CSKH: <a href="tel:0123456789" class="text-primary">0123 456 789</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<style>
+    .product-details-section {
+        background-color: #f8f9fa;
+        padding: 40px 0;
+        border-top: 1px solid #ddd;
+    }
+
+    .detail-box {
+        background-color: #ffffff;
+        border-left: 5px solid var(--orange);
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 8px;
+    }
+
+    .detail-box ul li {
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+        .detail-box ul li::before {
+            content: "•";
+            color: var(--blue);
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+    :root {
+        --orange: #ff6600;
+        --blue: #007bff;
+    }
+</style>
+
+
+
+@section Scripts {
+    <script>
+        let selectedAttributes = {};
+        let isProcessing = false;
+
+        $(document).ready(function () {
+            // Toggle ưu đãi
+            $('#btnToggleVouchers').on('click', function () {
+                $('#voucherList').toggleClass('d-none');
+                const isVisible = !$('#voucherList').hasClass('d-none');
+                $(this).text(isVisible ? 'Ẩn ưu đãi' : '🎁 Xem ưu đãi');
+            });
+
+            // Sao chép mã
+            $('.copy-code-btn').on('click', function () {
+                const code = $(this).data('code');
+                navigator.clipboard.writeText(code).then(() => {
+                    alert("📋 Đã sao chép mã: " + code);
+                }).catch(() => {
+                    alert("❌ Không thể sao chép mã.");
+                });
+            });
+
+            // Thuộc tính sản phẩm
+            $('.attribute-btn').on('click', function () {
+                const attrName = $(this).data('attribute-name');
+                const attrValue = $(this).data('attribute-value');
+
+                selectedAttributes[attrName] = attrValue;
+
+                $(`.attribute-btn[data-attribute-name='${attrName}']`)
+                    .removeClass('btn-dark').addClass('btn-outline-dark');
+
+                $(this).removeClass('btn-outline-dark').addClass('btn-dark');
+
+                const variants = @Html.Raw(JsonConvert.SerializeObject(Model.Variants, new JsonSerializerSettings
+                        {
+                            ContractResolver = new CamelCasePropertyNamesContractResolver()
+                        }));
+
+                const matchedVariant = variants.find(v => {
+                    const attrs = v.attributes;
+                    return Object.keys(selectedAttributes).every(key =>
+                        attrs.some(a => a.attributeName === key && a.attributeValue === selectedAttributes[key])
+                    );
+                });
+
+                if (matchedVariant) {
+                    $('#selectedVariantId').val(matchedVariant.id);
+                    $('#variantPrice').text(matchedVariant.price.toLocaleString('vi-VN') + ' VNĐ');
+                } else {
+                    $('#selectedVariantId').val('');
+                    $('#variantPrice').text('Vui lòng chọn đầy đủ thuộc tính');
+                }
+            });
+
+            // Thêm vào giỏ hàng
+            $('#btnAddToCart').on('click', function () {
+                if (isProcessing) return;
+                isProcessing = true;
+
+                const productId = $(this).data('product-id');
+                const quantity = parseInt($('#quantity-' + productId).val()) || 1;
+                const variantIdRaw = $('#selectedVariantId').val();
+                const variantId = variantIdRaw ? parseInt(variantIdRaw) : null;
+
+                const requestData = {
+                    idProduct: productId,
+                    quantity: quantity,
+                    variantId: variantId,
+                    attributes: selectedAttributes
+                };
+
+                $.ajax({
+                    url: '/Cart/AddToCartAjax',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function (response) {
+                        isProcessing = false;
+                        if (response.success) {
+                            $('#cartItemCount').text(response.cartItemCount);
+                            alert('✅ Đã thêm vào giỏ hàng!');
+                        } else {
+                            alert('❌ ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        isProcessing = false;
+                        alert("🚫 Không thể thêm vào giỏ hàng.");
+                    }
+                });
+            });
+        });
+    </script>
+}

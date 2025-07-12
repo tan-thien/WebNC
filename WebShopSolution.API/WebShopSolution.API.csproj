@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.0.5" />
+    <PackageReference Include="QuestPDF" Version="2025.7.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <ProjectReference Include="..\WebShopSolution.Application\WebShopSolution.Application.csproj" />
     <ProjectReference Include="..\WebShopSolution.Data\WebShopSolution.Data.csproj" />

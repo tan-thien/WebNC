@@ -38,7 +38,7 @@
                 <li><a asp-controller="Dashboard" asp-action="Index" class="block p-2 hover:bg-gray-700">Dashboard</a></li>
                 <li><a asp-controller="Category" asp-action="Index" class="block p-2 hover:bg-gray-700">Categories</a></li>
                 <li><a asp-controller="Product" asp-action="Index" class="block p-2 hover:bg-gray-700">Products</a></li>
-                <li><a asp-controller="Order" asp-action="Index" class="block p-2 hover:bg-gray-700">Orders</a></li>
+                <li><a asp-controller="AdminOrder" asp-action="Index" class="block p-2 hover:bg-gray-700">Orders</a></li>
                 <li>
                     <details class="group">
                         <summary class="block p-2 hover:bg-gray-700 cursor-pointer">
@@ -46,25 +46,25 @@
                         </summary>
                         <ul class="pl-4">
                             <li>
-                                <a asp-area="Admin" asp-controller="Order" asp-action="GetStatisticsByDay" class="block p-2 hover:bg-gray-700">
+                                <a href="/Statistics/StatisticsByDate" class="block p-2 hover:bg-gray-700">
                                     By Day
                                 </a>
                             </li>
                             <li>
-                                <a asp-area="Admin" asp-controller="Order" asp-action="GetStatistics" class="block p-2 hover:bg-gray-700">
+                                <a href="/Statistics/Statistics" class="block p-2 hover:bg-gray-700">
                                     By Month
                                 </a>
                             </li>
                             <li>
-                                <a asp-area="Admin" asp-controller="Order" asp-action="GetStatisticsByYear" class="block p-2 hover:bg-gray-700">
+                                <a href="/Statistics/StatisticsByYear" class="block p-2 hover:bg-gray-700">
                                     By Year
                                 </a>
                             </li>
                         </ul>
                     </details>
                 </li>
-                <li><a asp-area="Admin" asp-controller="Order" asp-action="Index" class="block p-2 hover:bg-gray-700">Account</a></li>
-                <li><a asp-area="Admin" asp-controller="Voucher" asp-action="Index" class="block p-2 hover:bg-gray-700">Voucher</a></li>
+                <li><a asp-controller="Account" asp-action="Index" class="block p-2 hover:bg-gray-700">Account</a></li>
+                <li> <a asp-controller="AdminVoucher" asp-action="Index" class="block p-2 hover:bg-gray-700">Voucher</a></li>
             </ul>
         </aside>
 

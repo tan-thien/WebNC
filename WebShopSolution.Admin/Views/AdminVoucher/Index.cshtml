@@ -1,0 +1,52 @@
+﻿@model List<WebShopSolution.Data.Entities.Voucher>
+
+@{
+    ViewData["Title"] = "Danh sách Voucher";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<a class="btn btn-success mb-3" asp-action="Create">+ Thêm mới</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Mã</th>
+            <th>Tên</th>
+            <th>Loại</th>
+            <th>Giảm</th>
+            <th>SL</th>
+            <th>Đã dùng</th>
+            <th>Ngày hết hạn</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Code</td>
+                <td>@item.Name</td>
+                <td>@(item.DiscountType == 0 ? "Tiền" : "%")</td>
+                <td>
+                    @item.DiscountValue @(item.DiscountType == 0 ? "₫" : "%")
+                    @if (item.DiscountType == 1 && item.MaxDiscountValue != null)
+                    {
+                        <span>(Tối đa @item.MaxDiscountValue ₫)</span>
+                    }
+                </td>
+                <td>@item.Quantity</td>
+                <td>@item.Used</td>
+                <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                <td>
+                    @(item.IsActive ? "Hoạt động" : "Ẩn")
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.VoucherId" class="btn btn-sm btn-warning">Sửa</a>
+                    <a asp-action="Delete" asp-route-id="@item.VoucherId" class="btn btn-sm btn-danger" onclick="return confirm('Xoá voucher này?')">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

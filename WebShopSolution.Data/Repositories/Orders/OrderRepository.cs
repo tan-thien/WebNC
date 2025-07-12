@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WebShopSolution.Data.EF;
@@ -62,6 +63,23 @@ namespace WebShopSolution.Data.Repositories.Orders
                 _context.Orders.Remove(order);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<Order>> GetWithIncludeAsync(
+            Expression<Func<Order, bool>> predicate,
+            string includeProperties = "")
+                {
+            IQueryable<Order> query = _context.Orders.Where(predicate);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(
+                    new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

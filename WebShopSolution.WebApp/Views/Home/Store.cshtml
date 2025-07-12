@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống cửa hàng La Lune</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Font + Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://file.hstatic.net/1000281824/file/logo1200_30471c131a2948efafaf7c9e9466511f73.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --orange: #ff6600;
+            --blue: #007bff;
+            --dark: #333;
+            --light-bg: #fefefe;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--dark);
+        }
+
+        header {
+            background-color: var(--light-bg);
+            padding: 40px 0;
+            border-bottom: 3px solid var(--orange);
+            text-align: center;
+        }
+
+            header h1 {
+                font-size: 2.8rem;
+                font-weight: 700;
+                color: var(--blue);
+            }
+
+        .store-item {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .store-item:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+        .store-image {
+            border-radius: 12px;
+            margin-bottom: 18px;
+            width: 100%;
+            height: auto;
+        }
+
+        .store-item h3 {
+            color: var(--orange);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .store-item p {
+            font-size: 0.95rem;
+        }
+
+        .store-item i {
+            color: var(--blue);
+            margin-right: 6px;
+            transition: transform 0.3s ease;
+        }
+
+        .store-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .btn-primary {
+            background-color: var(--blue);
+            border: none;
+            padding: 8px 18px;
+            font-weight: 600;
+            border-radius: 50px;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+        footer {
+            margin-top: 60px;
+            background-color: var(--blue);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+            footer p {
+                margin: 0;
+                font-size: 0.9rem;
+            }
+
+
+        .store-item {
+            padding: 20px;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <!-- HEADER -->
+        <header class="text-center mb-4">
+            <img src="~/images/banner.png" alt="Banner La Lune" class="img-fluid w-100 mb-3" style="max-height: 400px; object-fit: cover;">
+            <h1 class="fw-bold text-primary mt-3">HỆ THỐNG CỬA HÀNG LA LUNE</h1>
+        </header>
+
+
+        <!-- MAIN CONTENT -->
+        <main class="store-list my-5">
+            <div class="row g-4">
+                <!-- Store 1 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="store-item text-center">
+                        <img src="https://pendecor.vn/uploads/files/2024/03/21/thiet-ke-shop-quan-ao-1.jpg" alt="Cửa hàng Quận 1" class="store-image">
+                        <h3>Cửa hàng Quận 1</h3>
+                        <p><i class="bi bi-geo-alt-fill"></i>123 Đường ABC, Quận 1, TP.HCM</p>
+                        <p><i class="bi bi-telephone-fill"></i>0123 456 789</p>
+                        <a href="#" class="btn btn-primary mt-2">Xem bản đồ</a>
+                    </div>
+                </div>
+
+                <!-- Store 2 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="store-item text-center">
+                        <img src="https://obtpa.vn//wp-content/uploads/2023/04/lap-dat-loa-shop-thoi-trang.jpg" alt="Cửa hàng Quận 3" class="store-image">
+                        <h3>Cửa hàng Quận 3</h3>
+                        <p><i class="bi bi-geo-alt-fill"></i>456 Đường XYZ, Quận 3, TP.HCM</p>
+                        <p><i class="bi bi-telephone-fill"></i>0987 654 321</p>
+                        <a href="#" class="btn btn-primary mt-2">Xem bản đồ</a>
+                    </div>
+                </div>
+
+                <!-- Store 3 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="store-item text-center">
+                        <img src="https://s-housing.vn/wp-content/uploads/2023/04/thi-cong-shop-quan-ao-4.jpg" alt="Cửa hàng Bình Thạnh" class="store-image">
+                        <h3>Cửa hàng Bình Thạnh</h3>
+                        <p><i class="bi bi-geo-alt-fill"></i>789 Đường LMN, Bình Thạnh, TP.HCM</p>
+                        <p><i class="bi bi-telephone-fill"></i>0333 444 555</p>
+                        <a href="#" class="btn btn-primary mt-2">Xem bản đồ</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

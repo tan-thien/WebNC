@@ -1,49 +1,366 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using System.Text.Json
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"] - WebShopSolution.WebApp</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WebShopSolution.WebApp.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebShopSolution.WebApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - WebShopSolution.WebApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+
+
+    <!-- Trong <style> -->
+    <style>
+        :root {
+            --primary-orange: #ff6600;
+            --primary-blue: #007bff;
+            --text-light: #fff;
+            --text-dark: #333;
+            --light-bg: #f5f9ff;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-dark);
+            background-color: #fff;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* HEADER */
+        .header {
+            background-color: var(--primary-orange);
+            padding: 15px 0;
+        }
+
+            .header a,
+            .header i,
+            .header .cart-count {
+                color: var(--text-light) !important;
+            }
+
+        .nav-list li {
+            margin: 0 15px;
+            list-style: none;
+        }
+
+            .nav-list li a {
+                font-weight: 500;
+                color: var(--text-light);
+                transition: color 0.3s;
+            }
+
+                .nav-list li a:hover {
+                    color: #ffd4a3;
+                }
+
+                .nav-list li a.active,
+                .nav-list li a.nav-link.active {
+                    color: var(--primary-blue) !important;
+                    font-weight: bold;
+                    border-bottom: 2px solid var(--primary-blue);
+                }
+
+        /* .cart-count { */
+        /*     background-color: #fff; */
+        /*     color: var(--primary-orange); */
+        /*     border-radius: 50%; */
+        /*     padding: 2px 8px; */
+        /*     font-size: 0.75rem; */
+        /*     margin-left: 5px; */
+        /*     font-weight: bold; */
+        /* } */
+
+        .search-box input {
+            border: 1px solid var(--primary-blue);
+            background-color: var(--light-bg);
+        }
+
+        /* BUTTONS */
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #004c9e;
+            }
+
+        .btn-outline-light {
+            border-color: #fff;
+            color: #fff;
+        }
+
+            .btn-outline-light:hover {
+                background-color: #fff;
+                color: var(--primary-orange);
+            }
+
+        .btn-light.text-primary:hover {
+            background-color: var(--light-bg);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* DROPDOWN */
+        /* Nút User Dropdown với viền và chữ xanh dương */
+        .btn-user-dropdown {
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+            .btn-user-dropdown:hover,
+            .btn-user-dropdown:focus {
+                background-color: var(--primary-blue);
+                color: #fff;
+            }
+
+            .btn-user-dropdown i {
+                color: var(--primary-blue);
+            }
+
+        /* Dropdown menu mặc định nền trắng và chữ đen */
+        .dropdown-menu {
+            background-color: #fff;
+        }
+
+            /* Tất cả item mặc định là màu đen */
+            .dropdown-menu .dropdown-item {
+                color: #333 !important;
+            }
+
+                .dropdown-menu .dropdown-item i {
+                    color: inherit !important;
+                }
+
+                /* Hover: nền xanh dương, chữ trắng */
+                .dropdown-menu .dropdown-item:hover {
+                    background-color: var(--primary-blue) !important;
+                    color: #fff !important;
+                }
+
+                /* Dòng "Đăng xuất" màu đỏ vẫn giữ nguyên */
+                .dropdown-menu .dropdown-item.text-danger {
+                    color: #dc3545 !important;
+                }
+
+                    .dropdown-menu .dropdown-item.text-danger i {
+                        color: inherit !important;
+                    }
+
+                    /* Hover cho "Đăng xuất" vẫn dùng nền xanh dương nhưng chữ trắng */
+                    .dropdown-menu .dropdown-item.text-danger:hover {
+                        background-color: var(--primary-blue) !important;
+                        color: #fff !important;
+                    }
+
+
+
+
+        /* Nút Đăng nhập / Đăng ký tùy chỉnh */
+        .btn-custom-blue {
+            background-color: var(--primary-blue);
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+
+            .btn-custom-blue:hover {
+                background-color: white;
+                color: var(--primary-blue);
+                border-color: var(--primary-blue);
+            }
+
+        /* Giỏ hàng - màu xanh dương */
+        .header .cart-link,
+        .header .cart-link i,
+        .header .cart-link .cart-count {
+            color: var(--primary-blue) !important;
+            transition: color 0.3s ease;
+        }
+
+            .header .cart-link:hover,
+            .header .cart-link:hover i,
+            .header .cart-link:hover .cart-count {
+                color: #0056b3 !important;
+            }
+
+
+
+
+        /* FOOTER */
+        footer {
+            background-color: var(--primary-blue);
+            color: white;
+            
+        }
+
+            footer h5 {
+                color: #fca842;
+            }
+
+            footer a {
+                color: #d9ecff;
+            }
+
+                footer a:hover {
+                    color: #ffffff;
+                    text-decoration: underline;
+                }
+    </style>
+
+
+</head>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container d-flex align-items-center justify-content-between">
+            <!-- Logo -->
+        <div class="logo">
+            <a asp-controller="Home" asp-action="Index" class="fs-4 fw-bold text-white" style="font-family: 'Montserrat', serif;">
+                La Lune
+            </a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+            <!-- Nav -->
+            <nav class="nav">
+                <ul class="nav-list d-flex">
+                    <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                    <li><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
+                    <li><a asp-controller="Home" asp-action="Store">Cửa hàng</a></li>
+                    <li><a asp-controller="Order" asp-action="History">Đơn hàng</a></li>
+                    <li><a asp-controller="Home" asp-action="GioiThieu">Giới thiệu</a></li>
+                </ul>
+            </nav>
+
+            <!-- Search, Cart, User -->
+            <div class="header-right d-flex align-items-center">
+
+                <a asp-controller="Cart" asp-action="Index" class="d-flex align-items-center cart-link me-3">
+                    <i class="fas fa-shopping-cart fs-5"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+
+
+                <div class="dropdown">
+                    @if (HttpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+                    {
+                        <button class="btn btn-user-dropdown dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> @HttpContextAccessor.HttpContext.Session.GetString("UserName")
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                    <i class="fas fa-user me-2"></i> Thông tin tài khoản
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Order" asp-action="History">
+                                    <i class="fas fa-box me-2"></i> Đơn hàng của bạn
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-custom-blue" asp-controller="Account" asp-action="Login">
+                                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                            </a>
+                            <a class="btn btn-custom-blue" asp-controller="Account" asp-action="Register">
+                                <i class="fas fa-user-plus me-1"></i> Đăng ký
+                            </a>
+                        </div>
+
+                    }
+                </div>
+
+
+
+                
+            </div>
+        </div>
+    </header>
+<body>
+    <!-- BODY -->
+    <main class="container py-4 flex-grow-1">
+        @RenderBody()
+    </main>
 </body>
+
+
+    <!-- FOOTER -->
+<footer class="mt-auto py-5">
+    <div class="container">
+        <div class="row text-start">
+            <div class="col-md-3">
+                <h5>Về LaLune</h5>
+                <p><strong>LaLune</strong> – thương hiệu thời trang mang phong cách thanh lịch và hiện đại, lấy cảm hứng từ vẻ đẹp dịu dàng của ánh trăng. Thiết kế dành cho mọi giới tính, đề cao sự tinh tế và bản sắc cá nhân.</p>
+                <p><strong>CÔNG TY TNHH THỜI TRANG LALUNE</strong><br />MST: 0315986019</p>
+            </div>
+            <div class="col-md-3">
+                <h5>Địa chỉ</h5>
+                <p>Hồ Chí Minh: 43 Huỳnh Văn Bánh, P.17, Q.Phú Nhuận</p>
+                <p>Hà Nội: 12 Tràng Tiền, Q.Hoàn Kiếm</p>
+                <p>📞 Hotline: 0932 152 301</p>
+                <p>📧 Email: support@lalune.vn</p>
+            </div>
+            <div class="col-md-3">
+                <h5>Hỗ trợ khách hàng</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Chính sách đổi/trả</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Chính sách thanh toán</a></li>
+                    <li><a href="#">Câu hỏi thường gặp (FAQs)</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Kết nối với LaLune</h5>
+                <p>Gọi ngay: 0336 311 117</p>
+                <p>📧 CSKH: cskh@lalune.vn</p>
+                <p>
+                    <a href="#"><i class="fab fa-facebook me-2"></i>Facebook</a><br />
+                    <a href="#"><i class="fab fa-instagram me-2"></i>Instagram</a><br />
+                    <a href="#"><i class="fab fa-tiktok me-2"></i>TikTok</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- Scripts -->
+    <!-- jQuery (nếu dùng) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap Bundle (CHỈ MỘT LẦN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Site script -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+   
+
+    @RenderSection("scripts", required: false)
+
 </html>

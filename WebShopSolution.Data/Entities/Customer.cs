@@ -21,6 +21,8 @@ namespace WebShopSolution.Data.Entities
         public int IdAcc { get; set; }
         public Account? Account { get; set; }
 
+        public ICollection<CustomerVoucher> CustomerVouchers { get; set; }
+
         public ICollection<Order> Orders { get; set; }
     }
 }

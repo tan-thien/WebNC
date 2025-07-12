@@ -9,7 +9,7 @@ namespace WebShopSolution.ViewModels.Catalog.Cart
     public class CartViewModel
     {
         public int IdCart { get; set; }
-        public int IdCus { get; set; }
+        public int IdAcc { get; set; }
         public string CusName { get; set; }
     }
 }

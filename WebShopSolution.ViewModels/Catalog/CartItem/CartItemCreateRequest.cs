@@ -9,13 +9,17 @@ namespace WebShopSolution.ViewModels.Catalog.CartItem
 {
     public class CartItemCreateRequest
     {
-        [Required]
+
         public int IdCart { get; set; }
 
         [Required]
         public int IdProduct { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập số lượng.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0.")]
         public int Quantity { get; set; }
+        public Dictionary<string, string>? Attributes { get; set; }
+        public int? VariantId { get; set; }
+
     }
 }

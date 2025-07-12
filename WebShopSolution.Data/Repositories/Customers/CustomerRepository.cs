@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WebShopSolution.Data.EF;
@@ -17,7 +18,10 @@ namespace WebShopSolution.Data.Repositories.Customers
         {
             _context = context;
         }
-
+        public async Task<Customer?> FindAsync(Expression<Func<Customer, bool>> predicate)
+        {
+            return await _context.Customers.FirstOrDefaultAsync(predicate);
+        }
         public async Task<List<Customer>> GetAllAsync()
         {
             return await _context.Customers

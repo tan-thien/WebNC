@@ -7,7 +7,7 @@ using WebShopSolution.Data.EF;
 using WebShopSolution.Data.Entities;
 using WebShopSolution.Data.UnitOfWork;
 using WebShopSolution.ViewModels.Catalog.Product;
-
+using WebShopSolution.ViewModels.Catalog.ProductVariantAttributes;
 namespace WebShopSolution.Application.Catalog.Products
 {
     public class ProductService : IProductService
@@ -26,7 +26,7 @@ namespace WebShopSolution.Application.Catalog.Products
                                          .Include(p => p.Category)
                                          .Include(p => p.ProductImages)
                                          .Include(p => p.Variants)
-                                             .ThenInclude(v => v.Attributes)
+                                             .ThenInclude(v => v.ProductVariantAttributes)
                                          .ToListAsync();
 
             return products.Select(p => new ProductViewModel
@@ -53,7 +53,7 @@ namespace WebShopSolution.Application.Catalog.Products
                     Sku = v.Sku,
                     Stock = v.Stock,
                     Price = v.Price,
-                    Attributes = v.Attributes.Select(a => new ProductVariantAttributeViewModel
+                    Attributes = v.ProductVariantAttributes.Select(a => new ProductVariantAttributeViewModel
                     {
                         Id = a.Id,
                         AttributeName = a.AttributeName,
@@ -70,7 +70,7 @@ namespace WebShopSolution.Application.Catalog.Products
                                         .Include(p => p.Category)
                                         .Include(p => p.ProductImages)
                                         .Include(p => p.Variants)
-                                            .ThenInclude(v => v.Attributes)
+                                            .ThenInclude(v => v.ProductVariantAttributes)
                                         .FirstOrDefaultAsync(p => p.IdProduct == id);
 
             if (product == null) return null;
@@ -99,7 +99,7 @@ namespace WebShopSolution.Application.Catalog.Products
                     Price = v.Price,
                     Stock = v.Stock,
                     Status= v.Status,
-                    Attributes = v.Attributes.Select(a => new ProductVariantAttributeViewModel
+                    Attributes = v.ProductVariantAttributes.Select(a => new ProductVariantAttributeViewModel
                     {
                         Id=a.Id,
                         AttributeName = a.AttributeName,

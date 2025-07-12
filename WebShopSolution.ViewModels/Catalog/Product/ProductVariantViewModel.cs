@@ -1,4 +1,7 @@
-﻿namespace WebShopSolution.ViewModels.Catalog.Product
+﻿using WebShopSolution.ViewModels.Catalog.ProductVariantAttributes;
+
+
+namespace WebShopSolution.ViewModels.Catalog.Product
 {
     public class ProductVariantViewModel
     {
@@ -8,6 +11,7 @@
         public int Price { get; set; }
         public int Stock { get; set; }
         public string Status { get; set; }
-        public List<ProductVariantAttributeViewModel> Attributes { get; set; }
+        public List<ProductVariantAttributeViewModel> Attributes { get; set; } = new();
+
     }
 }

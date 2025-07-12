@@ -1,0 +1,184 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Order.OrderCreateRequest
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    var isOrderSuccess = TempData["OrderSuccess"] != null && (bool)TempData["OrderSuccess"] == true;
+    var hasVoucher = !string.IsNullOrWhiteSpace(Model.VoucherCode);
+    var hasDiscount = Model.DiscountAmount > 0;
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<h4>Danh sách sản phẩm</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Hình ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Biến thể</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td><img src="@item.ImagePath" width="60" /></td>
+                <td>@item.ProductName</td>
+                <td>@(string.IsNullOrEmpty(item.VariantInfo) ? "-" : item.VariantInfo)</td>
+                <td>@item.Quantity</td>
+                <td>@String.Format("{0:N0} đ", item.Price)</td>
+                <td>@String.Format("{0:N0} đ", item.Price * item.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Tổng tiền -->
+<div id="discount-summary">
+    @if (hasDiscount)
+    {
+        <h5 class="text-end">Tạm tính: @String.Format("{0:N0} đ", Model.TotalAmount)</h5>
+        <h5 class="text-end text-success">Giảm giá: -@String.Format("{0:N0} đ", Model.DiscountAmount)</h5>
+        <h4 class="text-end text-danger">Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount - Model.DiscountAmount)</h4>
+    }
+    else
+    {
+        <h4 class="text-end text-danger">Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount)</h4>
+    }
+</div>
+
+<h4 class="mt-5">Thông tin giao hàng</h4>
+<form asp-action="Checkout" method="post">
+    <input type="hidden" asp-for="ShippingAddress" />
+    <input type="hidden" asp-for="Phone" />
+    <input type="hidden" asp-for="TotalAmount" />
+    <input type="hidden" asp-for="DiscountAmount" />
+    <input type="hidden" asp-for="IsVoucherFromCart" />
+
+    <div class="mb-3">
+        <label><strong>Địa chỉ giao hàng:</strong></label>
+        <p>@Model.ShippingAddress</p>
+    </div>
+    <div class="mb-3">
+        <label><strong>Số điện thoại:</strong></label>
+        <p>@Model.Phone</p>
+    </div>
+
+    <!-- Mã khuyến mãi -->
+    <h4 class="mt-4">Mã khuyến mãi</h4>
+    @if (Model.IsVoucherFromCart)
+    {
+        <div class="alert alert-info">
+            <strong>Mã đã áp dụng từ giỏ hàng:</strong> @Model.VoucherCode
+        </div>
+        <input type="hidden" asp-for="VoucherCode" />
+    }
+    else if (hasVoucher)
+    {
+        <div class="alert alert-info">
+            <strong>Mã đã áp dụng:</strong> @Model.VoucherCode
+        </div>
+        <input type="hidden" asp-for="VoucherCode" />
+    }
+    else
+    {
+        <div class="input-group mb-3" style="max-width: 400px;">
+            <input type="text" class="form-control" id="voucherInput" name="VoucherCode" placeholder="Nhập mã giảm giá" />
+            <button type="button" class="btn btn-outline-primary" id="applyVoucherBtn">Áp dụng</button>
+        </div>
+    }
+
+    <!-- Hidden sản phẩm -->
+    @for (int i = 0; i < Model.Items.Count; i++)
+    {
+        <input type="hidden" name="Items[@i].ProductId" value="@Model.Items[i].ProductId" />
+        <input type="hidden" name="Items[@i].VariantId" value="@Model.Items[i].VariantId" />
+        <input type="hidden" name="Items[@i].Quantity" value="@Model.Items[i].Quantity" />
+        <input type="hidden" name="Items[@i].Price" value="@Model.Items[i].Price" />
+        <input type="hidden" name="Items[@i].ProductName" value="@Model.Items[i].ProductName" />
+        <input type="hidden" name="Items[@i].ImagePath" value="@Model.Items[i].ImagePath" />
+        <input type="hidden" name="Items[@i].VariantInfo" value="@Model.Items[i].VariantInfo" />
+    }
+
+    <button type="submit" class="btn btn-primary mt-4">Xác nhận đặt hàng</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const isOrderSuccess = @(isOrderSuccess.ToString().ToLower());
+
+        if (isOrderSuccess) {
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Đặt hàng thành công!',
+                html: 'Bạn sẽ được chuyển về trang chủ sau <b id="countdown">4</b> giây...',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    let seconds = 4;
+                    const countdownEl = Swal.getHtmlContainer().querySelector('#countdown');
+
+                    const countdown = setInterval(() => {
+                        seconds--;
+                        countdownEl.textContent = seconds;
+
+                        if (seconds <= 0) {
+                            clearInterval(countdown);
+                            window.location.href = '/Home/Index';
+                        }
+                    }, 1000);
+                }
+            });
+        }
+
+        // Xử lý nút áp dụng mã giảm giá
+        document.getElementById("applyVoucherBtn")?.addEventListener("click", async () => {
+            const input = document.getElementById("voucherInput");
+            const voucherCode = input?.value?.trim();
+
+            if (!voucherCode) {
+                Swal.fire("Lỗi", "Vui lòng nhập mã giảm giá.", "warning");
+                return;
+            }
+
+            const response = await fetch("/Order/ApplyVoucher", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ voucherCode })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById("discount-summary").innerHTML = `
+                    <h5 class="text-end">Tạm tính: ${result.originalTotal.toLocaleString()} đ</h5>
+                    <h5 class="text-end text-success">Giảm giá: -${result.discountAmount.toLocaleString()} đ</h5>
+                    <h4 class="text-end text-danger">Tổng tiền: ${(result.originalTotal - result.discountAmount).toLocaleString()} đ</h4>
+                `;
+
+                document.getElementById("voucherInput").disabled = true;
+                document.getElementById("applyVoucherBtn").disabled = true;
+
+                const hiddenVoucher = document.createElement("input");
+                hiddenVoucher.type = "hidden";
+                hiddenVoucher.name = "VoucherCode";
+                hiddenVoucher.value = voucherCode;
+                document.querySelector("form").appendChild(hiddenVoucher);
+
+                const discountHidden = document.createElement("input");
+                discountHidden.type = "hidden";
+                discountHidden.name = "DiscountAmount";
+                discountHidden.value = result.discountAmount;
+                document.querySelector("form").appendChild(discountHidden);
+            } else {
+                Swal.fire("Không hợp lệ", result.message, "error");
+            }
+        });
+    </script>
+}

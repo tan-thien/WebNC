@@ -83,8 +83,8 @@ namespace WebShopSolution.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -99,11 +99,20 @@ namespace WebShopSolution.Data.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
+                    b.Property<int?>("VariantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VariantInfo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("CartItems");
                 });
@@ -161,6 +170,36 @@ namespace WebShopSolution.Data.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("WebShopSolution.Data.Entities.CustomerVoucher", b =>
+                {
+                    b.Property<int>("CustomerVoucherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerVoucherId"));
+
+                    b.Property<int>("IdCus")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VoucherId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerVoucherId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.HasIndex("IdCus", "VoucherId")
+                        .IsUnique();
+
+                    b.ToTable("CustomerVouchers");
+                });
+
             modelBuilder.Entity("WebShopSolution.Data.Entities.Order", b =>
                 {
                     b.Property<int>("IdOrder")
@@ -168,6 +207,9 @@ namespace WebShopSolution.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdOrder"));
+
+                    b.Property<int?>("CustomerVoucherId")
+                        .HasColumnType("int");
 
                     b.Property<int>("IdCus")
                         .HasColumnType("int");
@@ -189,16 +231,19 @@ namespace WebShopSolution.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StatusOrder")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TotalAmount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VoucherId")
                         .HasColumnType("int");
 
                     b.HasKey("IdOrder");
 
+                    b.HasIndex("CustomerVoucherId");
+
                     b.HasIndex("IdCus");
+
+                    b.HasIndex("VoucherId");
 
                     b.ToTable("Orders");
                 });
@@ -353,6 +398,61 @@ namespace WebShopSolution.Data.Migrations
                     b.ToTable("ProductVariantAttributes");
                 });
 
+            modelBuilder.Entity("WebShopSolution.Data.Entities.Voucher", b =>
+                {
+                    b.Property<int>("VoucherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoucherId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DiscountType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("DiscountValue")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxDiscountValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Used")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserLimit")
+                        .HasColumnType("int");
+
+                    b.HasKey("VoucherId");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Vouchers");
+                });
+
             modelBuilder.Entity("WebShopSolution.Data.Entities.Cart", b =>
                 {
                     b.HasOne("WebShopSolution.Data.Entities.Account", "Account")
@@ -378,9 +478,15 @@ namespace WebShopSolution.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebShopSolution.Data.Entities.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("VariantId");
+
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.Category", b =>
@@ -404,15 +510,46 @@ namespace WebShopSolution.Data.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("WebShopSolution.Data.Entities.CustomerVoucher", b =>
+                {
+                    b.HasOne("WebShopSolution.Data.Entities.Customer", "Customer")
+                        .WithMany("CustomerVouchers")
+                        .HasForeignKey("IdCus")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebShopSolution.Data.Entities.Voucher", "Voucher")
+                        .WithMany("CustomerVouchers")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Voucher");
+                });
+
             modelBuilder.Entity("WebShopSolution.Data.Entities.Order", b =>
                 {
+                    b.HasOne("WebShopSolution.Data.Entities.CustomerVoucher", "CustomerVoucher")
+                        .WithMany()
+                        .HasForeignKey("CustomerVoucherId");
+
                     b.HasOne("WebShopSolution.Data.Entities.Customer", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("IdCus")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebShopSolution.Data.Entities.Voucher", "Voucher")
+                        .WithMany("Orders")
+                        .HasForeignKey("VoucherId");
+
                     b.Navigation("Customer");
+
+                    b.Navigation("CustomerVoucher");
+
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.OrderDetail", b =>
@@ -476,7 +613,7 @@ namespace WebShopSolution.Data.Migrations
             modelBuilder.Entity("WebShopSolution.Data.Entities.ProductVariantAttribute", b =>
                 {
                     b.HasOne("WebShopSolution.Data.Entities.ProductVariant", "ProductVariant")
-                        .WithMany("Attributes")
+                        .WithMany("ProductVariantAttributes")
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -503,6 +640,8 @@ namespace WebShopSolution.Data.Migrations
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.Customer", b =>
                 {
+                    b.Navigation("CustomerVouchers");
+
                     b.Navigation("Orders");
                 });
 
@@ -522,9 +661,16 @@ namespace WebShopSolution.Data.Migrations
 
             modelBuilder.Entity("WebShopSolution.Data.Entities.ProductVariant", b =>
                 {
-                    b.Navigation("Attributes");
-
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("ProductVariantAttributes");
+                });
+
+            modelBuilder.Entity("WebShopSolution.Data.Entities.Voucher", b =>
+                {
+                    b.Navigation("CustomerVouchers");
+
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

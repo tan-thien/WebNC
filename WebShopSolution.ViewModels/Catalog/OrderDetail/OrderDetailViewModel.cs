@@ -14,6 +14,9 @@ namespace WebShopSolution.ViewModels.Catalog.OrderDetail
         public int Quantity { get; set; }
         public int Price { get; set; }
         public int TotalPrice => Quantity * Price;
+        public string ProductName { get; set; }
+        public string ImagePath { get; set; }
+        public string? VariantInfo { get; set; }
     }
 
 

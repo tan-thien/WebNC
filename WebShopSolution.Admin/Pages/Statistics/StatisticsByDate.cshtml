@@ -1,0 +1,72 @@
+﻿@page
+@model WebShopSolution.Admin.Pages.Statistics.StatisticsByDateModel
+@{
+    ViewData["Title"] = "Daily Statistics";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" class="form-inline mb-3">
+    <label class="mr-2">Select Date:</label>
+    <input type="date" name="SelectedDate" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="form-control mr-2" />
+    <button type="submit" class="btn btn-primary">View</button>
+</form>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Total Orders</th>
+            <th>Total Revenue</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stat in Model.Statistics)
+        {
+            <tr>
+                <td>@stat.Date.ToString("yyyy-MM-dd")</td>
+                <td>@stat.TotalOrders</td>
+                <td>@stat.TotalRevenue.ToString("N0") ₫</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<canvas id="chart" height="100"></canvas>
+
+<div class="mt-3">
+    <a class="btn btn-success" href="/Statistics/StatisticsByDate?SelectedDate=@Model.SelectedDate.ToString("yyyy-MM-dd")&handler=ExportExcel">Export to Excel</a>
+    <a class="btn btn-danger" href="/Statistics/StatisticsByDate?SelectedDate=@Model.SelectedDate.ToString("yyyy-MM-dd")&handler=ExportPdf">Export to PDF</a>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(Json.Serialize(Model.Statistics.Select(x => x.Date.ToString("yyyy-MM-dd"))));
+        const data = @Html.Raw(Json.Serialize(Model.Statistics.Select(x => x.TotalRevenue)));
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (VND)',
+                    data: data,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN') + ' ₫';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

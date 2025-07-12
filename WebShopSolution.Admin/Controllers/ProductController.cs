@@ -89,48 +89,57 @@ namespace WebShopSolution.Admin.Controllers
             // 2. Nếu có biến thể thì tạo variant
             if (model.IsVariantProduct)
             {
-                var variantSKUs = form["VariantSKU"];
-                var variantPrices = form["VariantPrice"];
-                var variantStocks = form["VariantStock"];
-                var variantStatus = form["VariantStatus"];
-                var allAttributeNames = form["AttributeNames"];
-                var allAttributeValues = form["AttributeValues"];
-
-                int attributeIndex = 0;
-
-                for (int i = 0; i < variantSKUs.Count; i++)
+                int i = 0;
+                while (true)
                 {
+                    var skuKey = $"Variants[{i}].Sku";
+                    if (!form.ContainsKey(skuKey)) break;
+
+                    string sku = form[skuKey];
+                    string price = form[$"Variants[{i}].Price"];
+                    string stock = form[$"Variants[{i}].Stock"];
+                    string status = form[$"Variants[{i}].Status"];
+
+                    // Collect attributes
                     var attributes = new List<ProductVariantAttributeCreateRequest>();
-
-                    // Giả định mỗi variant có ít nhất 1 cặp name/value, và các cặp này nhóm theo thứ tự.
-                    // Có thể cần xử lý kỹ hơn nếu phức tạp.
-                    while (attributeIndex < allAttributeNames.Count && !string.IsNullOrWhiteSpace(allAttributeNames[attributeIndex]))
+                    int j = 0;
+                    while (true)
                     {
-                        // Stop collecting attributes when next variant's field appears (optional logic)
-                        if (i < variantSKUs.Count - 1 &&
-                            allAttributeNames[attributeIndex + 1] == variantSKUs[i + 1]) break;
+                        string nameKey = $"Variants[{i}].AttributeNames[{j}]";
+                        string valueKey = $"Variants[{i}].AttributeValues[{j}]";
+                        if (!form.ContainsKey(nameKey) || !form.ContainsKey(valueKey)) break;
 
-                        attributes.Add(new ProductVariantAttributeCreateRequest
+                        var attrName = form[nameKey];
+                        var attrValue = form[valueKey];
+
+                        if (!string.IsNullOrWhiteSpace(attrName) && !string.IsNullOrWhiteSpace(attrValue))
                         {
-                            AttributeName = allAttributeNames[attributeIndex],
-                            AttributeValue = allAttributeValues[attributeIndex]
-                        });
-                        attributeIndex++;
+                            attributes.Add(new ProductVariantAttributeCreateRequest
+                            {
+                                AttributeName = attrName,
+                                AttributeValue = attrValue
+                            });
+                        }
+
+                        j++;
                     }
 
                     var variantRequest = new ProductVariantCreateRequest
                     {
                         ProductId = productId,
-                        Sku = variantSKUs[i],
-                        Price = int.Parse(variantPrices[i]),
-                        Stock = int.Parse(variantStocks[i]),
-                        Status = variantStatus[i],
+                        Sku = sku,
+                        Price = int.Parse(price),
+                        Stock = int.Parse(stock),
+                        Status = status,
                         Attributes = attributes
                     };
 
                     await client.PostAsJsonAsync("https://localhost:7236/api/productvariants", variantRequest);
+
+                    i++;
                 }
             }
+
 
 
             // 3. Upload ảnh

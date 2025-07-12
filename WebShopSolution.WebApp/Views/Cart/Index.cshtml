@@ -1,0 +1,248 @@
+﻿@model List<WebShopSolution.ViewModels.Catalog.CartItem.CartItemViewModel>
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
+
+@{
+    ViewData["Title"] = "Giỏ hàng của bạn";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <p>Giỏ hàng của bạn đang trống.</p>
+}
+else
+{
+    <form id="cartForm">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Biến thể</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Tổng</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-product-id="@item.IdProduct"
+                        data-variant-id="@(item.VariantId?.ToString() ?? "")"
+                        data-quantity="@item.Quantity"
+                        data-price="@(Convert.ToInt32(item.Price))">
+                        <td>
+                            <input type="checkbox" class="select-item" />
+                        </td>
+                        <td><img src="@item.ImagePath" width="60" /></td>
+                        <td>@item.ProductName</td>
+                        <td>@(string.IsNullOrEmpty(item.Attributes) ? "-" : item.Attributes)</td>
+                        <td>
+                            <input type="number" class="form-control quantity-input" value="@item.Quantity" min="1" style="width: 70px;" />
+                        </td>
+                        <td>@String.Format("{0:N0} đ", item.Price)</td>
+                        <td class="item-total">@String.Format("{0:N0} đ", item.Price * item.Quantity)</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h4 class="text-end">Tổng cộng (đã chọn): <span id="selectedTotal">0</span> đ</h4>
+
+        <div class="voucher-section d-none mt-3" style="max-width: 400px; margin-left: auto;">
+            <label for="voucherCodeInput" class="form-label"><strong>Nhập mã khuyến mãi (nếu có):</strong></label>
+            <input type="text" id="voucherCodeInput" class="form-control mb-2" placeholder="Dán mã tại đây..." />
+            <div class="text-end text-muted">
+                Sau khi áp dụng mã: <strong><span id="discountedTotal">0</span> đ</strong>
+            </div>
+        </div>
+
+        <div class="text-end mt-4">
+            <button type="button" id="checkoutBtn" class="btn btn-success" disabled>Đặt hàng</button>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <script>
+        let currentVoucher = null;
+
+        function calculateSelectedTotal() {
+            let total = 0;
+            let hasChecked = false;
+
+            $('.select-item:checked').each(function () {
+                const row = $(this).closest('tr');
+                const price = parseInt(row.data('price'));
+                const quantity = parseInt(row.data('quantity'));
+                total += price * quantity;
+                hasChecked = true;
+            });
+
+            $('#selectedTotal').text(total.toLocaleString('vi-VN'));
+            $('#checkoutBtn').prop('disabled', !hasChecked);
+            $('.voucher-section').toggleClass('d-none', !hasChecked);
+
+            if (!hasChecked) {
+                $('#voucherCodeInput').val('');
+                currentVoucher = null;
+                $('#discountedTotal').text('0');
+            }
+
+            calculateDiscountedTotal();
+        }
+
+        function calculateDiscountedTotal() {
+            let total = 0;
+
+            $('.select-item:checked').each(function () {
+                const row = $(this).closest('tr');
+                const price = parseInt(row.data('price'));
+                const quantity = parseInt(row.data('quantity'));
+                total += price * quantity;
+            });
+
+            let discountAmount = 0;
+
+            if (currentVoucher) {
+                if (currentVoucher.DiscountType === 0) {
+                    discountAmount = currentVoucher.DiscountValue;
+                } else if (currentVoucher.DiscountType === 1) {
+                    discountAmount = total * currentVoucher.DiscountValue / 100;
+                }
+
+                if (currentVoucher.MaxDiscountValue && discountAmount > currentVoucher.MaxDiscountValue) {
+                    discountAmount = currentVoucher.MaxDiscountValue;
+                }
+            }
+
+            const discountedTotal = Math.max(0, total - discountAmount);
+            $('#discountedTotal').text(currentVoucher ? discountedTotal.toLocaleString('vi-VN') : '0');
+        }
+
+        $('#cartForm').on('submit', function (e) {
+            e.preventDefault();
+        });
+
+        $('#voucherCodeInput').on('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        $('#voucherCodeInput').on('input', function () {
+            const inputCode = $(this).val().trim();
+
+            if (!inputCode) {
+                currentVoucher = null;
+                calculateDiscountedTotal();
+                return;
+            }
+
+            const allVouchers = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Vouchers ?? new List<WebShopSolution.ViewModels.Catalog.Voucher.VoucherViewModel>(), new JsonSerializerSettings
+                       {
+                           ContractResolver = new DefaultContractResolver()
+                       }));
+
+            currentVoucher = allVouchers.find(v => v.Code?.toLowerCase() === inputCode.toLowerCase());
+            if (!currentVoucher) {
+                $('#discountedTotal').text("Không hợp lệ");
+            } else {
+                calculateDiscountedTotal();
+            }
+        });
+
+        $('#selectAll').on('change', function () {
+            $('.select-item').prop('checked', $(this).prop('checked'));
+            calculateSelectedTotal();
+        });
+
+        $('.select-item').on('change', function () {
+            calculateSelectedTotal();
+        });
+
+        $('.quantity-input').on('change', function () {
+            const row = $(this).closest('tr');
+            const quantity = parseInt($(this).val());
+            const productId = parseInt(row.data('product-id'));
+            const variantRaw = row.data('variant-id');
+            const variantId = (variantRaw === "" || variantRaw === undefined) ? null : variantRaw;
+
+            $.ajax({
+                url: '/Cart/UpdateQuantity',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productId: productId, variantId: variantId, quantity: quantity }),
+                success: function () {
+                    row.data('quantity', quantity);
+                    const price = parseInt(row.data('price'));
+                    row.find('.item-total').text((price * quantity).toLocaleString('vi-VN') + ' đ');
+                    calculateSelectedTotal();
+                }
+            });
+        });
+
+        $('.delete-btn').on('click', function () {
+            const row = $(this).closest('tr');
+            const productId = parseInt(row.data('product-id'));
+            const variantRaw = row.data('variant-id');
+            const variantId = (variantRaw === "" || variantRaw === undefined) ? null : variantRaw;
+
+            $.ajax({
+                url: '/Cart/DeleteItem',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productId: productId, variantId: variantId }),
+                success: function () {
+                    row.remove();
+                    calculateSelectedTotal();
+                }
+            });
+        });
+
+        $('#checkoutBtn').on('click', function () {
+            const selectedItems = [];
+
+            $('.select-item:checked').each(function () {
+                const row = $(this).closest('tr');
+                const productId = parseInt(row.data('product-id'));
+                const variantRaw = row.data('variant-id');
+                const variantId = (variantRaw === "" || variantRaw === undefined) ? null : parseInt(variantRaw);
+                const quantity = parseInt(row.data('quantity'));
+                const unitPrice = parseInt(row.data('price'));
+
+                selectedItems.push({
+                    idProduct: productId,
+                    variantId: variantId,
+                    quantity: quantity,
+                    price: unitPrice
+                });
+            });
+
+            const totalAmount = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const voucherCode = $('#voucherCodeInput').val().trim();
+
+            $.ajax({
+                url: '/Cart/SaveSelectedItemsToSession',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ items: selectedItems, totalAmount: totalAmount, voucherCode: voucherCode }),
+                success: function () {
+                    window.location.href = '/Order/Checkout';
+                },
+                error: function () {
+                    alert("Lưu giỏ hàng thất bại.");
+                }
+            });
+        });
+
+        calculateSelectedTotal();
+    </script>
+}

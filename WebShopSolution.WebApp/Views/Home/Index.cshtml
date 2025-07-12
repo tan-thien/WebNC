@@ -1,8 +1,381 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<WebShopSolution.ViewModels.Catalog.Product.ProductViewModel>
+
+@{
+    ViewData["Title"] = "Trang chủ";
+    var noImage = ViewBag.NoImagePath as string;
+    int productIndex = 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Banner Image -->
+<div class="banner-image-container">
+    <img src="~/images/banner.png" alt="Banner" class="banner-img" />
+    <div class="banner-text-overlay">
+        <h1 class="main-heading">Chào Mừng Đến Với La Lune</h1>
+        <p class="sub-heading">Khám phá những sản phẩm tuyệt vời dành cho bạn</p>
+        <a href="#product-list" class="btn btn-orange mt-3">Xem Sản Phẩm</a>
+    </div>
 </div>
+<!-- Giới thiệu thương hiệu -->
+<section class="about-brand py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://pendecor.vn/uploads/files/2024/03/21/thiet-ke-shop-quan-ao-1.jpg" alt="Giới thiệu La Lune" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="text-blue fw-bold mb-3">Về La Lune</h2>
+                <p class="mb-3">La Lune là thương hiệu thời trang mang đậm chất hiện đại kết hợp với sự tinh tế, tối giản và phong cách năng động. Chúng tôi luôn nỗ lực đem đến trải nghiệm mua sắm tuyệt vời cho bạn trẻ Việt Nam.</p>
+                <p>Với sứ mệnh lan tỏa sự tự tin và cá tính qua từng sản phẩm, La Lune không ngừng đổi mới thiết kế và nâng cao chất lượng dịch vụ.</p>
+                <a href="/about" class="btn btn-orange mt-3">Tìm hiểu thêm</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Vision & Mission Section -->
+<section class="vision-mission-section py-5 text-center bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="vision-box p-4 shadow-sm rounded h-100 bg-white border-left-orange">
+                    <h3 class="text-blue fw-bold mb-3">TẦM NHÌN</h3>
+                    <p class="mb-0 text-muted">La Lune hướng tới trở thành thương hiệu thời trang hàng đầu tại Việt Nam, mang lại giá trị thẩm mỹ và phong cách sống hiện đại cho giới trẻ.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mission-box p-4 shadow-sm rounded h-100 bg-white border-left-blue">
+                    <h3 class="text-orange fw-bold mb-3">SỨ MỆNH</h3>
+                    <p class="mb-0 text-muted">Chúng tôi cam kết tạo ra những sản phẩm chất lượng, sáng tạo và truyền cảm hứng, góp phần định hình cá tính cho khách hàng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Product List -->
+<h2 id="product-list" class="text-center section-title">Sản Phẩm Nổi Bật</h2>
+
+<div class="container">
+    <div class="row">
+        @foreach (var product in Model.Take(4))
+        {
+            var images = product.ProductImages;
+            var carouselId = "carouselProduct_" + productIndex++;
+
+            <div class="col-md-3 mb-4 product-card">
+                <div class="card h-100 shadow">
+                    <a href="@Url.Action("Detail", "Product", new { id = product.IdProduct })" class="text-decoration-none text-dark">
+                        <div id="@carouselId" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                @for (int i = 0; i < images.Count; i++)
+                                {
+                                    var img = string.IsNullOrEmpty(images[i].ImagePath) ? noImage : images[i].ImagePath;
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="@img" class="d-block w-100" alt="@product.ProductName" />
+                                    </div>
+                                }
+                            </div>
+
+                            @if (images.Count > 1)
+                            {
+                                <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                </button>
+                            }
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">@product.ProductName</h5>
+                            @{
+                                int? displayPrice = product.BasePrice;
+                                if (displayPrice == null && product.Variants != null && product.Variants.Any())
+                                {
+                                    displayPrice = product.Variants.Min(v => (int?)v.Price);
+                                }
+                            }
+                            <p class="card-text price-text">Giá: @string.Format("{0:N0} đ", displayPrice ?? 0)</p>
+                            <p class="text-muted">Loại: @product.CategoryName</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- FEEDBACK / KHÁCH HÀNG NÓI GÌ -->
+
+<section class="customer-feedback py-5 bg-white">
+    <div class="container text-center">
+        <h2 class="section-title mb-5">Khách Hàng Nói Gì?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 shadow rounded">
+                    <p class="fst-italic">"Mình cực kỳ thích chất vải của áo bên La Lune, mát và mềm. Dịch vụ cũng rất tốt, giao hàng nhanh!"</p>
+                    <h6 class="fw-bold mt-3 text-orange">— Linh Nguyễn</h6>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 shadow rounded">
+                    <p class="fst-italic">"La Lune luôn bắt trend nhanh và thiết kế rất cá tính. Mình đã quay lại mua lần 3!"</p>
+                    <h6 class="fw-bold mt-3 text-orange">— Huy Phạm</h6>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 shadow rounded">
+                    <p class="fst-italic">"Giá hợp lý mà chất lượng xịn. Cảm ơn La Lune vì đã khiến mình tự tin hơn khi ra đường."</p>
+                    <h6 class="fw-bold mt-3 text-orange">— Trâm Lê</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- BLOG THỜI TRANG / BÀI VIẾT MỚI -->
+<section class="fashion-blog bg-light py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-4">Blog Thời Trang</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://blog.totoday.vn/wp-content/uploads/2022/10/Mach-ban-5-dia-chi-ban-ao-thun-polo-nam-thoi-trang-tai-TPHCM-7.jpg" class="card-img-top" alt="Blog 1">
+                    <div class="card-body">
+                        <h5 class="card-title">5 Cách Phối Đồ Với Áo Thun Basic</h5>
+                        <p class="card-text">Áo thun là món đồ không thể thiếu. Dưới đây là 5 cách phối đồ giúp bạn trông sành điệu hơn mỗi ngày...</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Đọc thêm</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://file.hstatic.net/1000001863/article/ao-hoodie-nam-sieu-day_43d545d092fd4a62a442b87f5567f82c_grande.jpg" class="card-img-top" alt="Blog 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Top 3 Phụ Kiện Phải Có Mùa Hè Này</h5>
+                        <p class="card-text">Túi tote, kính râm và nón bucket là ba món đồ giúp bạn nổi bật mà vẫn tiện lợi cho mùa hè 2025...</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Đọc thêm</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://file.hstatic.net/1000284478/file/phong-cach-y2k-la-gi_7d552fa19e3f43f491aa3f424a307335.jpg" class="card-img-top" alt="Blog 3">
+                    <div class="card-body">
+                        <h5 class="card-title">Mix đồ theo phong cách Y2K</h5>
+                        <p class="card-text">Bạn yêu thích sự nổi loạn của Y2K? Cùng La Lune khám phá những outfit đậm chất Gen Z trong bài viết này!</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Đọc thêm</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- CSS -->
+<style>
+    .price-text {
+        font-size: 1.2rem; /* Tăng cỡ chữ */
+        color: #e60000; /* Màu đỏ tươi */
+        font-weight: bold; /* In đậm */
+    }
+
+    :root {
+        --orange: #ff6600;
+        --blue: #005b96;
+        --gray-bg: #f9f9f9;
+        --text-dark: #333;
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: white;
+    }
+
+    .banner-image-container {
+        position: relative;
+        width: 100%;
+        height: 450px;
+        overflow: hidden;
+    }
+
+    .banner-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.7);
+    }
+
+    .banner-text-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+    }
+
+    .main-heading {
+        font-size: 3rem;
+        font-weight: 700;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .sub-heading {
+        font-size: 1.2rem;
+        font-weight: 300;
+        margin-top: 10px;
+    }
+
+    .btn-orange {
+        background-color: var(--orange);
+        border: none;
+        padding: 12px 24px;
+        color: white;
+        border-radius: 5px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+        .btn-orange:hover {
+            background-color: #e65c00;
+        }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--blue);
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+        .section-title::after {
+            content: '';
+            width: 60px;
+            height: 3px;
+            background-color: var(--orange);
+            display: block;
+            margin: 10px auto 0;
+        }
+
+    .product-card .card {
+        transition: 0.3s ease-in-out;
+        border: none;
+    }
+
+        .product-card .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+    .card-title {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(100%);
+    }
+
+    .vision-mission-section {
+        background-color: #f4f9fc;
+    }
+
+    .text-orange {
+        color: var(--orange);
+    }
+
+    .text-blue {
+        color: var(--blue);
+    }
+
+    .border-left-orange {
+        border-left: 6px solid var(--orange);
+    }
+
+    .border-left-blue {
+        border-left: 6px solid var(--blue);
+    }
+
+    .vision-box, .mission-box {
+        transition: all 0.3s ease;
+    }
+
+        .vision-box:hover, .mission-box:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+
+
+    .text-orange {
+        color: var(--orange);
+    }
+
+    .text-blue {
+        color: var(--blue);
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--blue);
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+        .section-title::after {
+            content: '';
+            width: 60px;
+            height: 3px;
+            background-color: var(--orange);
+            display: block;
+            margin: 10px auto 0;
+        }
+
+    .card-title {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+</style>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const cards = document.querySelectorAll(".product-card");
+
+        searchInput.addEventListener("input", function () {
+            const keyword = this.value.toLowerCase();
+
+            cards.forEach(card => {
+                const name = card.querySelector(".card-title").innerText.toLowerCase();
+                if (name.includes(keyword)) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+</script>

@@ -18,8 +18,8 @@ namespace WebShopSolution.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AccountCreateRequest request)
         {
-            var result = await _accountService.RegisterAsync(request);
-            if (!result)
+            var idAcc = await _accountService.RegisterAsync(request);
+            if (idAcc == null)
                 return BadRequest("Tài khoản đã tồn tại.");
 
             return Ok("Đăng ký thành công.");

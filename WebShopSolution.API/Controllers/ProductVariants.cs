@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WebShopSolution.Application.Catalog.ProductVariant;
+using WebShopSolution.Application.Catalog.ProductVariants;
 using WebShopSolution.ViewModels.Catalog.Product;
 
 namespace WebShopSolution.API.Controllers

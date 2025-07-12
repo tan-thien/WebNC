@@ -1,0 +1,63 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Order.OrderViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<h2>Chi tiết đơn hàng #@Model.IdOrder</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<p><strong>Khách hàng:</strong> @Model.CustomerName</p>
+<p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+<p><strong>Địa chỉ:</strong> @Model.ShippingAddress</p>
+<p><strong>Điện thoại:</strong> @Model.Phone</p>
+<p><strong>Tổng tiền:</strong> @Model.TotalAmount.ToString("N0") đ</p>
+
+<form asp-action="UpdateStatus" method="post" class="mb-4">
+    <input type="hidden" name="OrderId" value="@Model.IdOrder" />
+    <div class="form-group">
+        <label for="NewStatus">Cập nhật trạng thái:</label>
+        <select class="form-control" name="NewStatus">
+            <option value="Chờ xử lý" selected="@("Chờ xử lý" == Model.OrderStatus)">Chờ xử lý</option>
+            <option value="Đang giao" selected="@("Đang giao" == Model.OrderStatus)">Đang giao</option>
+            <option value="Đã giao" selected="@("Đã giao" == Model.OrderStatus)">Đã giao</option>
+            <option value="Đã hủy" selected="@("Đã hủy" == Model.OrderStatus)">Đã hủy</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Cập nhật</button>
+</form>
+
+<h4>Sản phẩm trong đơn</h4>
+<table class="table table-bordered">
+    <thead class="table-light text-center">
+        <tr>
+            <th>Ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Biến thể</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr class="text-center align-middle">
+                <td><img src="@item.ImagePath" class="img-thumbnail" style="width:70px;" /></td>
+                <td class="text-start">@item.ProductName</td>
+                <td>@item.VariantInfo</td>
+                <td>@item.Quantity</td>
+                <td>@($"{item.Price:N0} đ")</td>
+                <td>@($"{item.Quantity * item.Price:N0} đ")</td>
+            </tr>
+        }
+    </tbody>
+</table>

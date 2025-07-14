@@ -104,7 +104,36 @@
     }
 
     <button type="submit" class="btn btn-primary mt-4">Xác nhận đặt hàng</button>
+
+
 </form>
+<hr />
+<h4 class="text-center">Hoặc</h4>
+<hr />
+
+<form id="paypalForm" asp-controller="Order" asp-action="PayWithPayPal" method="post">
+    @* Các trường ẩn *@
+    <input type="hidden" name="ShippingAddress" value="@Model.ShippingAddress" />
+    <input type="hidden" name="Phone" value="@Model.Phone" />
+    <input type="hidden" name="TotalAmount" value="@Model.TotalAmount" />
+    <input type="hidden" name="DiscountAmount" value="@Model.DiscountAmount" />
+    <input type="hidden" name="VoucherCode" value="@Model.VoucherCode" />
+    <input type="hidden" name="IsVoucherFromCart" value="@Model.IsVoucherFromCart" />
+
+    @for (int i = 0; i < Model.Items.Count; i++)
+    {
+        <input type="hidden" name="Items[@i].ProductId" value="@Model.Items[i].ProductId" />
+        <input type="hidden" name="Items[@i].VariantId" value="@Model.Items[i].VariantId" />
+        <input type="hidden" name="Items[@i].Quantity" value="@Model.Items[i].Quantity" />
+        <input type="hidden" name="Items[@i].Price" value="@Model.Items[i].Price" />
+        <input type="hidden" name="Items[@i].ProductName" value="@Model.Items[i].ProductName" />
+        <input type="hidden" name="Items[@i].ImagePath" value="@Model.Items[i].ImagePath" />
+        <input type="hidden" name="Items[@i].VariantInfo" value="@Model.Items[i].VariantInfo" />
+    }
+
+    <button type="submit" class="btn btn-warning mt-3">Thanh toán bằng PayPal</button>
+</form>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

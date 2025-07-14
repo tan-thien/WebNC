@@ -6,6 +6,7 @@ using WebShopSolution.Data.EF;
 using WebShopSolution.ViewModels.Catalog.CartItem;
 using WebShopSolution.ViewModels.Catalog.Order;
 using WebShopSolution.ViewModels.Catalog.Voucher;
+using WebShopSolution.Application.Catalog.PayPal;
 
 namespace WebShopSolution.WebApp.Controllers
 {
@@ -14,12 +15,14 @@ namespace WebShopSolution.WebApp.Controllers
         private readonly IOrderService _orderService;
         private readonly WebShopDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly PayPalService _paypalService;
 
-        public OrderController(IOrderService orderService, WebShopDbContext context, IConfiguration configuration)
+        public OrderController(IOrderService orderService, WebShopDbContext context, IConfiguration configuration, PayPalService paypalService)
         {
             _orderService = orderService;
             _context = context;
             _configuration = configuration;
+            _paypalService = paypalService;
         }
 
         [HttpGet]
@@ -201,6 +204,73 @@ namespace WebShopSolution.WebApp.Controllers
                 originalTotal = result.OriginalTotal,
                 message = result.Message
             });
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> PayWithPayPal(OrderCreateRequest request)
+        {
+            if (request == null || request.Items == null || !request.Items.Any())
+            {
+                TempData["ErrorMessage"] = "Không có sản phẩm nào để đặt hàng.";
+                return RedirectToAction("Checkout");
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Lưu đơn hàng tạm thời
+            HttpContext.Session.SetString("PendingOrderRequest", JsonConvert.SerializeObject(request));
+
+            // Gọi PayPal tạo order
+            var approvalUrl = await _paypalService.CreateOrder(request.TotalAmount - request.DiscountAmount);
+            if (string.IsNullOrEmpty(approvalUrl))
+            {
+                TempData["ErrorMessage"] = "Không thể tạo đơn hàng PayPal.";
+                return RedirectToAction("Checkout");
+            }
+
+            return Redirect(approvalUrl);
+        }
+        [HttpGet]
+        public async Task<IActionResult> PaypalSuccess([FromQuery] string token)
+        {
+            if (!await _paypalService.CaptureOrder(token))
+            {
+                TempData["ErrorMessage"] = "Thanh toán thất bại hoặc bị hủy.";
+                return RedirectToAction("Checkout");
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var orderJson = HttpContext.Session.GetString("PendingOrderRequest");
+            if (string.IsNullOrEmpty(orderJson))
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy thông tin đơn hàng.";
+                return RedirectToAction("Checkout");
+            }
+
+            var orderRequest = JsonConvert.DeserializeObject<OrderCreateRequest>(orderJson);
+
+            var result = await _orderService.CreateOrderAsync(userId.Value, orderRequest);
+            if (!result)
+            {
+                TempData["ErrorMessage"] = "Đặt hàng thất bại sau khi thanh toán.";
+                return RedirectToAction("Checkout");
+            }
+
+            HttpContext.Session.Remove("PendingOrderRequest");
+            TempData["OrderSuccess"] = true;
+
+            return RedirectToAction("Checkout");
         }
 
 

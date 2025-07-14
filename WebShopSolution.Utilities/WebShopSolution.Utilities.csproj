@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.0.5" />
+    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
     <PackageReference Include="QuestPDF" Version="2025.7.0" />
   </ItemGroup>
 

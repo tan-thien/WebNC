@@ -16,6 +16,7 @@ using WebShopSolution.Data.Repositories.ProductImages;
 using WebShopSolution.Data.Repositories.Vouchers; 
 using WebShopSolution.Data.UnitOfWork;
 using WebShopSolution.Application.Catalog.Categories;
+using WebShopSolution.Application.Catalog.PayPal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>(
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<ICustomerVoucherRepository, CustomerVoucherRepository>(); // ✅ Thêm dòng này
+builder.Services.AddScoped<PayPalService>();
 
 // ✅ Đăng ký UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,0 +1,59 @@
+﻿@model WebShopSolution.ViewModels.Catalog.Customer.CustomerProfileViewModel
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<h2>@ViewData["Title"]</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<table class="table table-bordered mt-4">
+    <tr>
+        <th>Họ tên</th>
+        <td>@Model.CusName</td>
+    </tr>
+    <tr>
+        <th>Số điện thoại</th>
+        <td>@Model.Phone</td>
+    </tr>
+    <tr>
+        <th>Địa chỉ</th>
+        <td>@Model.Address</td>
+    </tr>
+    <tr>
+        <th>Tên đăng nhập</th>
+        <td>@Model.UserName</td>
+    </tr>
+    <tr>
+        <th>Mật khẩu</th>
+        <td>
+            <div class="input-group">
+                <input type="password" id="passwordInput" class="form-control" value="@Model.PassWord" readonly />
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<a href="@Url.Action("EditProfile", "Customer")" class="btn btn-primary">Chỉnh sửa thông tin</a>
+@section Scripts {
+    <script>
+        function togglePasswordVisibility() {
+            var input = document.getElementById("passwordInput");
+            var icon = document.getElementById("toggleIcon");
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+    </script>
+}

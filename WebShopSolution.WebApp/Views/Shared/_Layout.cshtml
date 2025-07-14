@@ -30,6 +30,10 @@
             font-family: 'Montserrat', sans-serif;
             color: var(--text-dark);
             background-color: #fff;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            box-sizing: border-box;
         }
 
         a {
@@ -224,14 +228,14 @@
 
 
 </head>
-
+<body class="d-flex flex-column min-vh-100">
     <!-- HEADER -->
     <header class="header">
         <div class="container d-flex align-items-center justify-content-between">
             <!-- Logo -->
         <div class="logo">
             <a asp-controller="Home" asp-action="Index" class="fs-4 fw-bold text-white" style="font-family: 'Montserrat', serif;">
-                La Lune
+                La Luna
             </a>
         </div>
 
@@ -264,7 +268,7 @@
 
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                             <li>
-                                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                <a class="dropdown-item" asp-controller="Customer" asp-action="Profile">
                                     <i class="fas fa-user me-2"></i> Thông tin tài khoản
                                 </a>
                             </li>
@@ -301,12 +305,12 @@
             </div>
         </div>
     </header>
-<body>
+
     <!-- BODY -->
-    <main class="container py-4 flex-grow-1">
+    <main class="container pt-4 flex-grow-1">
         @RenderBody()
     </main>
-</body>
+
 
 
     <!-- FOOTER -->
@@ -314,16 +318,16 @@
     <div class="container">
         <div class="row text-start">
             <div class="col-md-3">
-                <h5>Về LaLune</h5>
-                <p><strong>LaLune</strong> – thương hiệu thời trang mang phong cách thanh lịch và hiện đại, lấy cảm hứng từ vẻ đẹp dịu dàng của ánh trăng. Thiết kế dành cho mọi giới tính, đề cao sự tinh tế và bản sắc cá nhân.</p>
-                <p><strong>CÔNG TY TNHH THỜI TRANG LALUNE</strong><br />MST: 0315986019</p>
+                <h5>Về LaLuna</h5>
+                <p><strong>LaLuna</strong> – thương hiệu thời trang mang phong cách thanh lịch và hiện đại, lấy cảm hứng từ vẻ đẹp dịu dàng của ánh trăng. Thiết kế dành cho mọi giới tính, đề cao sự tinh tế và bản sắc cá nhân.</p>
+                <p><strong>CÔNG TY TNHH THỜI TRANG LALUNA</strong><br />MST: 0315986019</p>
             </div>
             <div class="col-md-3">
                 <h5>Địa chỉ</h5>
                 <p>Hồ Chí Minh: 43 Huỳnh Văn Bánh, P.17, Q.Phú Nhuận</p>
                 <p>Hà Nội: 12 Tràng Tiền, Q.Hoàn Kiếm</p>
                 <p>📞 Hotline: 0932 152 301</p>
-                <p>📧 Email: support@lalune.vn</p>
+                <p>📧 Email: support@laluna.vn</p>
             </div>
             <div class="col-md-3">
                 <h5>Hỗ trợ khách hàng</h5>
@@ -335,9 +339,9 @@
                 </ul>
             </div>
             <div class="col-md-3">
-                <h5>Kết nối với LaLune</h5>
+                <h5>Kết nối với LaLuna</h5>
                 <p>Gọi ngay: 0336 311 117</p>
-                <p>📧 CSKH: cskh@lalune.vn</p>
+                <p>📧 CSKH: cskh@laluna.vn</p>
                 <p>
                     <a href="#"><i class="fab fa-facebook me-2"></i>Facebook</a><br />
                     <a href="#"><i class="fab fa-instagram me-2"></i>Instagram</a><br />
@@ -348,6 +352,7 @@
     </div>
 </footer>
 
+</body>
 
     <!-- Scripts -->
     <!-- jQuery (nếu dùng) -->

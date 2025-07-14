@@ -49,5 +49,29 @@ namespace WebShopSolution.Application.Catalog.Customers
             await _unitOfWork.Customers.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task UpdateProfileAsync(int accountId, string name, string phone, string address, string? newPassword = null, string? username = null)
+        {
+            var customer = await _unitOfWork.Customers.GetByAccountIdAsync(accountId);
+            if (customer == null || customer.Account == null) return;
+
+            customer.CusName = name;
+            customer.Phone = phone;
+            customer.Address = address;
+
+            if (!string.IsNullOrWhiteSpace(username))
+            {
+                customer.Account.UserName = username;
+            }
+
+            if (!string.IsNullOrWhiteSpace(newPassword))
+            {
+                customer.Account.PassWord = newPassword;
+                await _unitOfWork.Accounts.UpdateAsync(customer.Account);
+            }
+
+            await _unitOfWork.Customers.UpdateAsync(customer);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace WebShopSolution.WebApp.Controllers
 
         public async Task<IActionResult> Index(int? categoryId, int page = 1)
         {
-            const int pageSize = 15;
+            const int pageSize = 6;
 
             var products = await _productService.GetAllAsync();
             var categories = await _categoryService.GetAllAsync();

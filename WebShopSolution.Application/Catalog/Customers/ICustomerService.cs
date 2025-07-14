@@ -15,5 +15,7 @@ namespace WebShopSolution.Application.Catalog.Customers
         Task AddAsync(Customer customer);
         Task UpdateAsync(Customer customer);
         Task DeleteAsync(int id);
+
+        Task UpdateProfileAsync(int accountId, string name, string phone, string address, string? newPassword = null, string? username = null);
     }
 }

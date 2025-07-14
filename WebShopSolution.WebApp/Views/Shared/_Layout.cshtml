@@ -19,8 +19,8 @@
     <!-- Trong <style> -->
     <style>
         :root {
-            --primary-orange: #ff6600;
-            --primary-blue: #007bff;
+            --primary-orange: #ee6823;
+            --primary-blue: #17479D;
             --text-light: #fff;
             --text-dark: #333;
             --light-bg: #f5f9ff;
@@ -183,7 +183,7 @@
         }
 
             .btn-custom-blue:hover {
-                background-color: white;
+                background-color: transparent;
                 color: var(--primary-blue);
                 border-color: var(--primary-blue);
             }
@@ -202,15 +202,61 @@
                 color: #0056b3 !important;
             }
 
+        .nav-list li a {
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .navbar-nav .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+            .navbar-nav .nav-link::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 0;
+                height: 2px;
+                background-color: #fff;
+                transition: width 0.3s ease-in-out;
+            }
+
+            .navbar-nav .nav-link:hover::after {
+                width: 100%;
+            }
+
+
+        .offcanvas.offcanvas-end {
+            background-color: var(--primary-blue);
+        }
+
+        .offcanvas .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+            .offcanvas .nav-link:hover {
+                color: #fca842 !important;
+            }
 
 
 
         /* FOOTER */
         footer {
-            background-color: var(--primary-blue);
-            color: white;
+            background: linear-gradient(135deg, #17479D, #0d3570);
+            color: #fff;
+            padding-top: 40px;
+            font-size: 0.95rem;
             
         }
+
+            footer ul li::before {
+                content: "•";
+                color: #fca842;
+                margin-right: 6px;
+            }
 
             footer h5 {
                 color: #fca842;
@@ -224,11 +270,167 @@
                     color: #ffffff;
                     text-decoration: underline;
                 }
+
+
+
+        .footer-bottom-bar {
+            height: 40px;
+            background-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .orange-strip {
+            position: absolute;
+            width: 110%;
+            height: 100%;
+            background-color: #f37021; /* Cam HUFLIT */
+            transform: skewX(-20deg);
+            left: -5%;
+            top: 0;
+            z-index: 1;
+        }
+
+        .footer-social-icons {
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            color: #fff;
+        }
+
+        /*==============topbar==========*/
+
+        .top-bar {
+            background-color: #002366;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Hình bình hành cam bên phải giống HUFLIT */
+        .topbar-tail {
+            position: absolute;
+            top: 0;
+            right: 0; /* lệch một chút cho ra ngoài */
+            width: 270px;
+            height: 100%;
+            background-color: #ee6823;
+            clip-path: polygon(30px 0, 100% 0, 100% 100%, 0% 100%);
+            z-index: 1;
+        }
+
+        /*==============footer==========*/
+
+        .footer-orange-slope {
+            height: 15px;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .footer-orange-shape {
+            position: absolute;
+            top: -15px;
+            right: 0; /* canh phải */
+            width: 270px; /* hoặc tùy chiều ngang mong muốn */
+            height: 80px;
+            background-color: #f37021; /* màu cam HUFLIT */
+            clip-path: polygon(0 100%, 70px 0, 100% 0, 100% 100%);
+            z-index: 3;
+        }
+
+        /*==============chatbot==========*/
+
+        #chat-widget-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #0d6efd;
+            color: white;
+            padding: 12px 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+        }
+
+        #chat-box {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .chat-header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #chat-messages {
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        .chat-input-group button {
+            margin-left: 6px;
+            padding: 6px 12px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+
     </style>
 
 
 </head>
 <body class="d-flex flex-column min-vh-100">
+
+    <!-- Top Bar -->
+    <!-- Top Bar với đuôi cam hình bình hành -->
+    <div class="top-bar position-relative d-none d-md-flex justify-content-end align-items-center text-white px-3" style="height: 40px;">
+        <div class="d-flex gap-3 small position-relative z-2">
+            <span>Liên hệ:</span>
+            <a href="#" class="text-white text-decoration-none">Facebook</a>
+            <a href="#" class="text-white text-decoration-none">Instagram</a>
+        </div>
+        <div class="topbar-tail"></div>
+    </div>
+
     <!-- HEADER -->
     <header class="header">
         <div class="container d-flex align-items-center justify-content-between">
@@ -240,22 +442,53 @@
         </div>
 
             <!-- Nav -->
-            <nav class="nav">
-                <ul class="nav-list d-flex">
-                    <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                    <li><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
-                    <li><a asp-controller="Home" asp-action="Store">Cửa hàng</a></li>
-                    <li><a asp-controller="Order" asp-action="History">Đơn hàng</a></li>
-                    <li><a asp-controller="Home" asp-action="GioiThieu">Giới thiệu</a></li>
-                </ul>
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container">
+
+                    <!-- Toggle button for mobile -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                            aria-controls="offcanvasNavbar">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Offcanvas menu -->
+                    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar"
+                         aria-labelledby="offcanvasNavbarLabel">
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="Store">Cửa hàng</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Order" asp-action="History">Đơn hàng</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="GioiThieu">Giới thiệu</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </nav>
+
 
             <!-- Search, Cart, User -->
             <div class="header-right d-flex align-items-center">
 
                 <a asp-controller="Cart" asp-action="Index" class="d-flex align-items-center cart-link me-3">
                     <i class="fas fa-shopping-cart fs-5"></i>
-                    <span class="cart-count" id="cart-count">0</span>
+                    <span class="cart-count" id="cart-count"></span>
                 </a>
 
 
@@ -314,7 +547,9 @@
 
 
     <!-- FOOTER -->
-<footer class="mt-auto py-5">
+<footer class="mt-auto">
+
+
     <div class="container">
         <div class="row text-start">
             <div class="col-md-3">
@@ -343,16 +578,52 @@
                 <p>Gọi ngay: 0336 311 117</p>
                 <p>📧 CSKH: cskh@laluna.vn</p>
                 <p>
-                    <a href="#"><i class="fab fa-facebook me-2"></i>Facebook</a><br />
-                    <a href="#"><i class="fab fa-instagram me-2"></i>Instagram</a><br />
-                    <a href="#"><i class="fab fa-tiktok me-2"></i>TikTok</a>
+                        <a href="https://www.facebook.com/tanthiendangeoo/"><i class="fab fa-facebook me-2"></i>Facebook</a><br />
+                        <a href="https://www.instagram.com/ngtanth_"><i class="fab fa-instagram me-2"></i>Instagram</a><br />
+                        <a href="https://www.tiktok.com/thiennt10?_r=1&_d=secCgYIASAHKAESPgo8Qj8mWjrljGPRpv5uRl92MRJlbKwu7S8jWI5HeJp3OhM68eXn9SOeeP7DHu%2Fl40B6UXP6bCB6huBdBWqaGgA%3D&_svg=1&checksum=fc69f59e158aba3365f7238c9447e98994dca4deaaafeb83c04ec20d3da3c259&sec_uid=MS4wLjABAAAAAj-78v8C6jbAn2lvXEAZ5bwlx62b7XJvr4xIpkQAs10KrMC3PJaYgMOnpf-S7hBy&sec_user_id=MS4wLjABAAAAAj-78v8C6jbAn2lvXEAZ5bwlx62b7XJvr4xIpkQAs10KrMC3PJaYgMOnpf-S7hBy&share_app_id=1180&share_author_id=6814813237533262849&share_link_id=1675A040-D47C-4023-AA34-32770A1D95F5&share_scene=1&sharer_language=vi&social_share_type=4&source=h5_t&timestamp=1752511845&tt_from=copy&u_code=dbm7faib62cj14&ug_btm=b8727%2Cb0&user_id=6814813237533262849&utm_campaign=client_share&utm_medium=ios&utm_source=copy"><i class="fab fa-tiktok me-2"></i>TikTok</a>
                 </p>
             </div>
         </div>
     </div>
+        <!-- Cam nhô lên như HUFLIT -->
+        <div class="footer-orange-slope position-relative">
+            <div class="footer-orange-shape"></div>
+        </div>
+
 </footer>
 
+
+
+    <!-- Bottom Decorative Bar -->
+    <div class="footer-bottom-bar position-relative">
+        <div class="orange-strip"></div>
+        <div class="footer-social-icons d-flex align-items-center justify-content-end px-3">
+            <a href="#" class="me-3"><i class="fab fa-facebook fa-lg text-white"></i></a>
+            <a href="#" class="me-3"><i class="fab fa-instagram fa-lg text-white"></i></a>
+            <a href="#" class="me-3"><i class="fab fa-youtube fa-lg text-white"></i></a>
+            <a href="#" class="text-white small fw-bold">Tư vấn 24/7</a>
+        </div>
+    </div>
+
+
 </body>
+
+
+<!-- Chat Widget Button -->
+<div id="chat-widget-button" onclick="toggleChatBox()">
+    💬
+</div>
+
+<!-- Chat Box -->
+<div id="chat-box">
+    <div class="chat-header">Chat với AI 🤖 <span onclick="toggleChatBox()" class="close-btn">×</span></div>
+    <div id="chat-messages"></div>
+    <div class="chat-input-group">
+        <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." />
+        <button onclick="sendMessage()">Gửi</button>
+    </div>
+</div>
+
 
     <!-- Scripts -->
     <!-- jQuery (nếu dùng) -->
@@ -369,3 +640,42 @@
     @RenderSection("scripts", required: false)
 
 </html>
+
+<script>
+    function toggleChatBox() {
+        const box = document.getElementById('chat-box');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage("Bạn", message);
+        input.value = "";
+
+        try {
+            const response = await fetch("/Chat/Ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const result = await response.json();
+            appendMessage("AI", result.reply);
+        } catch (error) {
+            appendMessage("AI", "Xin lỗi, đã có lỗi xảy ra.");
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const container = document.getElementById("chat-messages");
+        const msgDiv = document.createElement("div");
+        msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+</script>

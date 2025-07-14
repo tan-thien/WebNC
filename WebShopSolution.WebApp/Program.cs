@@ -17,6 +17,7 @@ using WebShopSolution.Data.Repositories.Vouchers;
 using WebShopSolution.Data.UnitOfWork;
 using WebShopSolution.Application.Catalog.Categories;
 using WebShopSolution.Application.Catalog.PayPal;
+using WebShopSolution.Application.Catalog.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<ICustomerVoucherRepository, CustomerVoucherRepository>(); // ✅ Thêm dòng này
 builder.Services.AddScoped<PayPalService>();
+builder.Services.AddHttpClient<ChatService>();
 
 // ✅ Đăng ký UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -48,6 +50,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddHttpClient();
 
 
 // ✅ Dùng để inject HttpContext vào Service (ví dụ lấy Session)

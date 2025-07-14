@@ -4,65 +4,97 @@
     ViewData["Title"] = "Lịch sử đơn hàng";
 }
 
-<h2 class="mt-4 mb-3">Lịch sử đơn hàng</h2>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-}
-else
-{
-    <p class="fw-bold">Khách hàng: @Model.FirstOrDefault()?.CustomerName</p>
+<div class="container mt-5 pb-5">
+    <h2 class="text-center fw-bold text-primary mb-4">Lịch sử đơn hàng</h2>
 
-    foreach (var order in Model)
+    @if (!Model.Any())
     {
-        var totalBeforeDiscount = order.TotalAmount + order.DiscountAmount;
-
-        <div class="card mb-4 shadow-sm border-0 rounded-3">
-            <div class="card-header bg-light">
-                <strong>Đơn hàng ngày @order.OrderDate.ToString("dd/MM/yyyy")</strong> -
-                <span class="text-primary">@order.OrderStatus</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Địa chỉ giao:</strong> @order.ShippingAddress</p>
-                <p><strong>Số điện thoại:</strong> @order.Phone</p>
-
-                <p><strong>Tổng tiền:</strong> @Html.Raw($"{totalBeforeDiscount:N0} đ")</p>
-                <p><strong>Áp dụng mã giảm giá:</strong> <span class="text-success fw-bold">@order.VoucherCode</span></p>
-                <p><strong>Thành tiền:</strong> <span class="text-danger fw-bold">@Html.Raw($"{order.TotalAmount:N0} đ")</span></p>
-
-                <table class="table table-hover table-bordered mt-3">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th>Ảnh</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Biến thể</th>
-                            <th>Số lượng</th>
-                            <th>Đơn giá</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var detail in order.OrderDetails)
-                        {
-                            <tr class="align-middle text-center">
-                                <td style="width:80px">
-                                    <img src="@detail.ImagePath"
-                                         alt="Ảnh sản phẩm"
-                                         class="img-thumbnail"
-                                         style="max-width: 70px;"
-                                         onerror="this.onerror=null;this.src='/images/no-image.png';" />
-                                </td>
-                                <td class="text-start">@detail.ProductName</td>
-                                <td>@detail.VariantInfo</td>
-                                <td>@detail.Quantity</td>
-                                <td>@($"{detail.Price:N0} đ")</td>
-                                <td>@Html.Raw($"{order.TotalAmount:N0} đ")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <div class="alert alert-info text-center">Bạn chưa có đơn hàng nào.</div>
     }
-}
+    else
+    {
+        <p class="fw-bold mb-4">👤 Khách hàng: <span class="text-primary">@Model.FirstOrDefault()?.CustomerName</span></p>
+
+                @functions {
+                string GetBadgeClass(string status)
+                {
+                    return status switch
+                    {
+                        "Chờ xử lý" => "bg-warning text-dark",     // Vàng
+                        "Đang giao" => "bg-info text-dark",        // Xanh dương nhạt
+                        "Đã giao" => "bg-success",                 // Xanh lá
+                        "Đã huỷ" => "bg-danger",                   // Đỏ
+                        _ => "bg-secondary"                        // Mặc định
+                    };
+                }
+            }
+
+
+        @foreach (var order in Model)
+        {
+            var totalBeforeDiscount = order.TotalAmount + order.DiscountAmount;
+
+            <div class="card mb-5 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-receipt-cutoff me-1 text-secondary"></i>
+                        <strong>Đơn hàng ngày @order.OrderDate.ToString("dd/MM/yyyy")</strong>
+                    </div>
+                    <span class="badge @GetBadgeClass(order.OrderStatus)">
+                        @order.OrderStatus
+                    </span>
+
+                </div>
+                <div class="card-body">
+                    <p><i class="bi bi-geo-alt-fill me-1 text-danger"></i><strong>Địa chỉ giao:</strong> @order.ShippingAddress</p>
+                    <p><i class="bi bi-telephone-fill me-1 text-success"></i><strong>Số điện thoại:</strong> @order.Phone</p>
+
+                    <p><strong>Tổng tiền:</strong> <span>@Html.Raw($"{totalBeforeDiscount:N0} đ")</span></p>
+
+                    @if (!string.IsNullOrEmpty(order.VoucherCode))
+                    {
+                        <p><strong>Áp dụng mã giảm giá:</strong> <span class="text-success fw-bold">@order.VoucherCode</span></p>
+                    }
+
+                    <p><strong>Thành tiền:</strong> <span class="text-danger fw-bold fs-5">@Html.Raw($"{order.TotalAmount:N0} đ")</span></p>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered mt-3 align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Biến thể</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detail in order.OrderDetails)
+                                {
+                                    <tr>
+                                        <td style="width:80px">
+                                            <img src="@detail.ImagePath"
+                                                 alt="Ảnh sản phẩm"
+                                                 class="img-thumbnail rounded"
+                                                 style="max-width: 70px;"
+                                                 onerror="this.onerror=null;this.src='/images/no-image.png';" />
+                                        </td>
+                                        <td class="text-start">@detail.ProductName</td>
+                                        <td>@detail.VariantInfo</td>
+                                        <td>@detail.Quantity</td>
+                                        <td>@($"{detail.Price:N0} đ")</td>
+                                        <td>@($"{detail.Quantity * detail.Price:N0} đ")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

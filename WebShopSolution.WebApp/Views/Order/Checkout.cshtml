@@ -7,50 +7,57 @@
     var hasDiscount = Model.DiscountAmount > 0;
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<h2 class="page-title text-center">
+    <i class="bi bi-credit-card-2-front-fill me-2 text-primary"></i> @ViewData["Title"]
+</h2>
 
-<h4>Danh sách sản phẩm</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Hình ảnh</th>
-            <th>Tên sản phẩm</th>
-            <th>Biến thể</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Thành tiền</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Items)
-        {
+
+<h4 class="checkout-heading"><i class="bi bi-bag-check-fill"></i> Danh sách sản phẩm</h4>
+<div class="section-box">
+    <table class="table table-bordered table-hover table-checkout">
+        <thead class="table-light text-center">
             <tr>
-                <td><img src="@item.ImagePath" width="60" /></td>
-                <td>@item.ProductName</td>
-                <td>@(string.IsNullOrEmpty(item.VariantInfo) ? "-" : item.VariantInfo)</td>
-                <td>@item.Quantity</td>
-                <td>@String.Format("{0:N0} đ", item.Price)</td>
-                <td>@String.Format("{0:N0} đ", item.Price * item.Quantity)</td>
+                <th>Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Biến thể</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td class="text-center"><img src="@item.ImagePath" width="60" /></td>
+                    <td>@item.ProductName</td>
+                    <td>@(string.IsNullOrEmpty(item.VariantInfo) ? "-" : item.VariantInfo)</td>
+                    <td>@item.Quantity</td>
+                    <td>@String.Format("{0:N0} đ", item.Price)</td>
+                    <td>@String.Format("{0:N0} đ", item.Price * item.Quantity)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 
 <!-- Tổng tiền -->
-<div id="discount-summary">
+<div id="discount-summary" class="total-summary text-end section-box">
     @if (hasDiscount)
     {
-        <h5 class="text-end">Tạm tính: @String.Format("{0:N0} đ", Model.TotalAmount)</h5>
-        <h5 class="text-end text-success">Giảm giá: -@String.Format("{0:N0} đ", Model.DiscountAmount)</h5>
-        <h4 class="text-end text-danger">Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount - Model.DiscountAmount)</h4>
+        <h5>Tạm tính: <span>@String.Format("{0:N0} đ", Model.TotalAmount)</span></h5>
+        <h5 class="text-success">Giảm giá: -@String.Format("{0:N0} đ", Model.DiscountAmount)</h5>
+        <h4 class="text-danger">💰 Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount - Model.DiscountAmount)</h4>
     }
     else
     {
-        <h4 class="text-end text-danger">Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount)</h4>
+        <h4 class="text-danger">💰 Tổng tiền: @String.Format("{0:N0} đ", Model.TotalAmount)</h4>
     }
 </div>
 
-<h4 class="mt-5">Thông tin giao hàng</h4>
+
+
 <form asp-action="Checkout" method="post">
     <input type="hidden" asp-for="ShippingAddress" />
     <input type="hidden" asp-for="Phone" />
@@ -58,17 +65,22 @@
     <input type="hidden" asp-for="DiscountAmount" />
     <input type="hidden" asp-for="IsVoucherFromCart" />
 
-    <div class="mb-3">
-        <label><strong>Địa chỉ giao hàng:</strong></label>
-        <p>@Model.ShippingAddress</p>
-    </div>
-    <div class="mb-3">
-        <label><strong>Số điện thoại:</strong></label>
-        <p>@Model.Phone</p>
+    <h4 class="checkout-heading mt-5"><i class="bi bi-truck"></i> Thông tin giao hàng</h4>
+    <div class="section-box">
+        <div class="mb-2">
+            <strong>Địa chỉ:</strong>
+            <p>@Model.ShippingAddress</p>
+        </div>
+        <div class="mb-2">
+            <strong>Số điện thoại:</strong>
+            <p>@Model.Phone</p>
+        </div>
     </div>
 
+
     <!-- Mã khuyến mãi -->
-    <h4 class="mt-4">Mã khuyến mãi</h4>
+    <h4 class="checkout-heading"><i class="bi bi-gift"></i> Mã khuyến mãi</h4>
+    <div class="section-box">
     @if (Model.IsVoucherFromCart)
     {
         <div class="alert alert-info">
@@ -90,6 +102,7 @@
             <button type="button" class="btn btn-outline-primary" id="applyVoucherBtn">Áp dụng</button>
         </div>
     }
+    </div>
 
     <!-- Hidden sản phẩm -->
     @for (int i = 0; i < Model.Items.Count; i++)
@@ -103,12 +116,15 @@
         <input type="hidden" name="Items[@i].VariantInfo" value="@Model.Items[i].VariantInfo" />
     }
 
-    <button type="submit" class="btn btn-primary mt-4">Xác nhận đặt hàng</button>
-
-
+    <!-- Nút xác nhận đặt hàng -->
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg shadow-sm px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-bag-check-fill fs-5"></i> Đặt hàng
+        </button>
+    </div>
 </form>
 <hr />
-<h4 class="text-center">Hoặc</h4>
+<h4 class="text-center">— Hoặc thanh toán bằng —</h4>
 <hr />
 
 <form id="paypalForm" asp-controller="Order" asp-action="PayWithPayPal" method="post">
@@ -131,8 +147,109 @@
         <input type="hidden" name="Items[@i].VariantInfo" value="@Model.Items[i].VariantInfo" />
     }
 
-    <button type="submit" class="btn btn-warning mt-3">Thanh toán bằng PayPal</button>
+    <!-- Nút PayPal -->
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-outline-warning btn-lg shadow-sm px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2">
+            <i class="fab fa-paypal fs-5"></i> Thanh toán bằng PayPal
+        </button>
+        <p class="paypal-note mt-2">💵 Bạn sẽ được chuyển sang PayPal để thanh toán bằng USD (đã quy đổi từ VND).</p>
+    </div>
+
 </form>
+
+
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #17479D;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .page-title i {
+            font-size: 1.8rem;
+        }
+    .section-box {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .checkout-heading {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #17479D;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .checkout-heading i {
+            color: #ee6823;
+        }
+
+    .total-summary h4,
+    .total-summary h5 {
+        margin-bottom: 8px;
+    }
+
+        .total-summary h4.text-danger {
+            font-weight: bold;
+        }
+
+    .paypal-note {
+        font-size: 0.95rem;
+        color: #dc3545;
+    }
+
+    .voucher-applied {
+        font-size: 0.95rem;
+        color: #198754;
+    }
+
+    .table-checkout th,
+    .table-checkout td {
+        vertical-align: middle !important;
+    }
+
+    .table-checkout img {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+
+    .btn {
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+    .btn-outline-warning {
+        border-color: #ffc107;
+        color: #ffc107;
+        background-color: white;
+    }
+
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: white;
+        }
+
+</style>
+
 
 
 @section Scripts {

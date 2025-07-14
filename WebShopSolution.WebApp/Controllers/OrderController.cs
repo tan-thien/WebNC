@@ -207,7 +207,6 @@ namespace WebShopSolution.WebApp.Controllers
         }
 
 
-
         [HttpPost]
         public async Task<IActionResult> PayWithPayPal(OrderCreateRequest request)
         {
@@ -223,11 +222,16 @@ namespace WebShopSolution.WebApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Lưu đơn hàng tạm thời
+            // Lưu đơn hàng tạm thời vào session
             HttpContext.Session.SetString("PendingOrderRequest", JsonConvert.SerializeObject(request));
 
-            // Gọi PayPal tạo order
-            var approvalUrl = await _paypalService.CreateOrder(request.TotalAmount - request.DiscountAmount);
+            // ✅ Chuyển từ VND sang USD (giả sử tỷ giá = 24,000)
+            const decimal exchangeRate = 26125m;
+            var totalVnd = request.TotalAmount - request.DiscountAmount;
+            var totalUsd = Math.Round(totalVnd / exchangeRate, 2); // làm tròn 2 chữ số sau dấu phẩy
+
+            // Gọi PayPal tạo đơn hàng
+            var approvalUrl = await _paypalService.CreateOrder(totalUsd);
             if (string.IsNullOrEmpty(approvalUrl))
             {
                 TempData["ErrorMessage"] = "Không thể tạo đơn hàng PayPal.";
@@ -236,6 +240,10 @@ namespace WebShopSolution.WebApp.Controllers
 
             return Redirect(approvalUrl);
         }
+
+
+
+
         [HttpGet]
         public async Task<IActionResult> PaypalSuccess([FromQuery] string token)
         {

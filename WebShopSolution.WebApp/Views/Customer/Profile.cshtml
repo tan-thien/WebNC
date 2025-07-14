@@ -3,47 +3,104 @@
     ViewData["Title"] = "Thông tin cá nhân";
 }
 
-<h2>@ViewData["Title"]</h2>
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-<table class="table table-bordered mt-4">
-    <tr>
-        <th>Họ tên</th>
-        <td>@Model.CusName</td>
-    </tr>
-    <tr>
-        <th>Số điện thoại</th>
-        <td>@Model.Phone</td>
-    </tr>
-    <tr>
-        <th>Địa chỉ</th>
-        <td>@Model.Address</td>
-    </tr>
-    <tr>
-        <th>Tên đăng nhập</th>
-        <td>@Model.UserName</td>
-    </tr>
-    <tr>
-        <th>Mật khẩu</th>
-        <td>
-            <div class="input-group">
-                <input type="password" id="passwordInput" class="form-control" value="@Model.PassWord" readonly />
-                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
-                    <i class="bi bi-eye" id="toggleIcon"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-</table>
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-<a href="@Url.Action("EditProfile", "Customer")" class="btn btn-primary">Chỉnh sửa thông tin</a>
+<style>
+    .profile-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background-color: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px auto;
+        font-size: 48px;
+        color: #0d6efd;
+    }
+
+    .profile-table th {
+        background-color: #f8f9fa;
+        width: 200px;
+    }
+
+    .btn-eye-toggle {
+        border-color: var(--bs-primary);
+        color: var(--bs-primary);
+    }
+
+        .btn-eye-toggle:hover {
+            background-color: var(--bs-primary);
+            color: white;
+        }
+</style>
+
+<div class="container mt-5 pb-5">
+    <div class="profile-container">
+        <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
+        </div>
+        <h2 class="fw-bold text-primary mb-4">@ViewData["Title"]</h2>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["Success"]</div>
+        }
+
+        <table class="table table-bordered profile-table align-middle mb-0 text-start">
+            <tr>
+                <th>Họ tên</th>
+                <td>@Model.CusName</td>
+            </tr>
+            <tr>
+                <th>Số điện thoại</th>
+                <td>@Model.Phone</td>
+            </tr>
+            <tr>
+                <th>Địa chỉ</th>
+                <td>@Model.Address</td>
+            </tr>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <td>@Model.UserName</td>
+            </tr>
+            <tr>
+                <th>Mật khẩu</th>
+                <td>
+                    <div class="input-group">
+                        <input type="password" id="passwordInput" class="form-control" value="@Model.PassWord" readonly />
+                        <button class="btn btn-eye-toggle" type="button" onclick="togglePasswordVisibility()" title="Hiện/Ẩn mật khẩu">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="text-center mt-4">
+            <a href="@Url.Action("EditProfile", "Customer")" class="btn btn-primary px-4">
+                <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa thông tin
+            </a>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function togglePasswordVisibility() {
-            var input = document.getElementById("passwordInput");
-            var icon = document.getElementById("toggleIcon");
+            const input = document.getElementById("passwordInput");
+            const icon = document.getElementById("toggleIcon");
 
             if (input.type === "password") {
                 input.type = "text";

@@ -1,4 +1,4 @@
-﻿    using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebShopSolution.Application.Catalog.Customers;
 using WebShopSolution.ViewModels.Catalog.Customer;
 namespace WebShopSolution.WebApp.Controllers

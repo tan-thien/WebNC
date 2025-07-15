@@ -17,10 +17,9 @@ namespace WebShopSolution.WebApp.Controllers
         }
         [Route("Chat/Ask")]
         [HttpPost]
-        public IActionResult Ask([FromBody] ChatRequest request)
+        public async Task<IActionResult> Ask([FromBody] ChatRequest request)
         {
             var message = request.Message?.ToLower();
-
             string reply;
 
             if (string.IsNullOrEmpty(message))
@@ -41,12 +40,19 @@ namespace WebShopSolution.WebApp.Controllers
             }
             else
             {
-                reply = "Cảm ơn bạn đã nhắn tin. Nhân viên sẽ hỗ trợ bạn sớm nhất!";
+                try
+                {
+                    reply = await _chatService.SendMessageAsync(request.Message);
+                }
+                catch (Exception ex)
+                {
+                    reply = "Xin lỗi, hệ thống AI đang bận. Vui lòng thử lại sau!";
+                    // Ghi log nếu cần: ex.Message
+                }
             }
 
             return Ok(new { reply });
         }
-
 
         public class ChatRequest
         {

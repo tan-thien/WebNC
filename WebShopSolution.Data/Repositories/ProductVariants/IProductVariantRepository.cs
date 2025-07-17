@@ -12,5 +12,7 @@ namespace WebShopSolution.Data.Repositories.ProductVariants
     {
         Task<ProductVariant?> GetByIdAsync(int id);
         Task<IEnumerable<ProductVariant>> GetWithIncludeAsync(Expression<Func<ProductVariant, bool>> predicate, string includeProperties = "");
+
+        Task UpdateAsync(ProductVariant productVariant);
     }
 }

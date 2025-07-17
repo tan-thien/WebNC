@@ -121,18 +121,17 @@
             </div>
 
             <div class="mt-3">
-                <span>Số lượng trong giỏ: </span><span id="cartItemCount">0</span>
+
             </div>
 
             <p class="mt-4"><strong>Mô tả:</strong></p>
             <p>@Model.Description</p>
         </div>
 
-        <!-- Thông tin chi tiết, bảo quản và chính sách -->
+        <!-- Thông tin chi tiết -->
         <div class="product-details-section mt-5">
             <div class="container">
                 <div class="row g-4">
-                    <!-- Thông tin sản phẩm -->
                     <div class="col-md-6">
                         <div class="detail-box shadow-sm p-4 rounded bg-white">
                             <h4 class="section-title text-primary"><i class="bi bi-info-circle"></i> Thông tin sản phẩm</h4>
@@ -147,7 +146,6 @@
                         </div>
                     </div>
 
-                    <!-- Hướng dẫn bảo quản -->
                     <div class="col-md-6">
                         <div class="detail-box shadow-sm p-4 rounded bg-white">
                             <h4 class="section-title text-primary"><i class="bi bi-droplet-half"></i> Hướng dẫn bảo quản</h4>
@@ -161,7 +159,6 @@
                         </div>
                     </div>
 
-                    <!-- Chính sách đổi trả -->
                     <div class="col-12">
                         <div class="detail-box shadow-sm p-4 rounded bg-white mt-3">
                             <h4 class="section-title text-danger"><i class="bi bi-shield-check"></i> Chính sách đổi/trả</h4>
@@ -177,8 +174,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 </div>
 
@@ -220,22 +215,18 @@
     }
 </style>
 
-
-
 @section Scripts {
     <script>
         let selectedAttributes = {};
         let isProcessing = false;
 
         $(document).ready(function () {
-            // Toggle ưu đãi
             $('#btnToggleVouchers').on('click', function () {
                 $('#voucherList').toggleClass('d-none');
                 const isVisible = !$('#voucherList').hasClass('d-none');
                 $(this).text(isVisible ? 'Ẩn ưu đãi' : '🎁 Xem ưu đãi');
             });
 
-            // Sao chép mã
             $('.copy-code-btn').on('click', function () {
                 const code = $(this).data('code');
                 navigator.clipboard.writeText(code).then(() => {
@@ -245,7 +236,6 @@
                 });
             });
 
-            // Thuộc tính sản phẩm
             $('.attribute-btn').on('click', function () {
                 const attrName = $(this).data('attribute-name');
                 const attrValue = $(this).data('attribute-value');
@@ -278,13 +268,31 @@
                 }
             });
 
-            // Thêm vào giỏ hàng
+            // Theo dõi thay đổi số lượng
+            const qtyInput = $('#quantity-@Model.IdProduct');
+            qtyInput.on('input', function () {
+                const val = parseInt($(this).val()) || 0;
+                $('#btnAddToCart').prop('disabled', val < 1);
+            });
+
+            // Mặc định bật nút nếu hợp lệ
+            $('#btnAddToCart').prop('disabled', false);
+
+            // Thêm vào giỏ
             $('#btnAddToCart').on('click', function () {
                 if (isProcessing) return;
-                isProcessing = true;
 
                 const productId = $(this).data('product-id');
-                const quantity = parseInt($('#quantity-' + productId).val()) || 1;
+                const quantity = parseInt($('#quantity-' + productId).val()) || 0;
+
+                if (quantity < 1) {
+                    alert('⚠️ Vui lòng chọn số lượng lớn hơn 0!');
+                    $('#btnAddToCart').prop('disabled', true);
+                    return;
+                }
+
+                isProcessing = true;
+
                 const variantIdRaw = $('#selectedVariantId').val();
                 const variantId = variantIdRaw ? parseInt(variantIdRaw) : null;
 

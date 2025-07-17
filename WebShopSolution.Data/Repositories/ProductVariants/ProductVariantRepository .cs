@@ -39,5 +39,12 @@ namespace WebShopSolution.Data.Repositories.ProductVariants
 
             return await query.ToListAsync();
         }
+
+        public async Task UpdateAsync(ProductVariant productVariant)
+        {
+            _context.ProductVariants.Update(productVariant);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

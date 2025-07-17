@@ -35,14 +35,12 @@ else
                         data-variant-id="@(item.VariantId?.ToString() ?? "")"
                         data-quantity="@item.Quantity"
                         data-price="@(Convert.ToInt32(item.Price))">
-                        <td>
-                            <input type="checkbox" class="select-item" />
-                        </td>
+                        <td><input type="checkbox" class="select-item" /></td>
                         <td><img src="@item.ImagePath" width="60" /></td>
                         <td>@item.ProductName</td>
                         <td>@(string.IsNullOrEmpty(item.Attributes) ? "-" : item.Attributes)</td>
                         <td>
-                            <input type="number" class="form-control quantity-input" value="@item.Quantity" min="1" style="width: 70px;" />
+                            <input type="number" class="form-control quantity-input" value="@item.Quantity" style="width: 70px;" />
                         </td>
                         <td>@String.Format("{0:N0} đ", item.Price)</td>
                         <td class="item-total">@String.Format("{0:N0} đ", item.Price * item.Quantity)</td>
@@ -74,29 +72,46 @@ else
     <script>
         let currentVoucher = null;
 
+        function isValidQuantity(quantity) {
+            return !isNaN(quantity) && quantity >= 1;
+        }
+
         function calculateSelectedTotal() {
             let total = 0;
             let hasChecked = false;
+            let allValid = true;
 
             $('.select-item:checked').each(function () {
                 const row = $(this).closest('tr');
                 const price = parseInt(row.data('price'));
-                const quantity = parseInt(row.data('quantity'));
-                total += price * quantity;
+                let quantity = parseInt(row.data('quantity'));
+
+                if (!isValidQuantity(quantity)) {
+                    allValid = false;
+                    row.find('.quantity-error').removeClass('d-none');
+                } else {
+                    total += price * quantity;
+                    row.find('.quantity-error').addClass('d-none');
+                }
+
                 hasChecked = true;
             });
 
             $('#selectedTotal').text(total.toLocaleString('vi-VN'));
-            $('#checkoutBtn').prop('disabled', !hasChecked);
-            $('.voucher-section').toggleClass('d-none', !hasChecked);
 
-            if (!hasChecked) {
+            const canCheckout = hasChecked && allValid;
+            $('#checkoutBtn').prop('disabled', !canCheckout);
+            $('.voucher-section').toggleClass('d-none', !canCheckout);
+
+            if (!canCheckout) {
                 $('#voucherCodeInput').val('');
                 currentVoucher = null;
                 $('#discountedTotal').text('0');
             }
 
-            calculateDiscountedTotal();
+            if (canCheckout) {
+                calculateDiscountedTotal();
+            }
         }
 
         function calculateDiscountedTotal() {
@@ -126,16 +141,6 @@ else
             const discountedTotal = Math.max(0, total - discountAmount);
             $('#discountedTotal').text(currentVoucher ? discountedTotal.toLocaleString('vi-VN') : '0');
         }
-
-        $('#cartForm').on('submit', function (e) {
-            e.preventDefault();
-        });
-
-        $('#voucherCodeInput').on('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-            }
-        });
 
         $('#voucherCodeInput').on('input', function () {
             const inputCode = $(this).val().trim();
@@ -168,9 +173,16 @@ else
             calculateSelectedTotal();
         });
 
-        $('.quantity-input').on('change', function () {
-            const row = $(this).closest('tr');
-            const quantity = parseInt($(this).val());
+        $('.quantity-input').on('input change', function () {
+            const $input = $(this);
+            const row = $input.closest('tr');
+            let quantity = parseInt($input.val());
+
+            if (isNaN(quantity) || quantity < 1) {
+                quantity = 1;
+                $input.val(quantity);
+            }
+
             const productId = parseInt(row.data('product-id'));
             const variantRaw = row.data('variant-id');
             const variantId = (variantRaw === "" || variantRaw === undefined) ? null : variantRaw;

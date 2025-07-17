@@ -2,24 +2,32 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WebShopSolution.Application.Catalog.Orders;
+using WebShopSolution.Application.Catalog.PayPal;
+using WebShopSolution.Application.Catalog.Carts; // Thêm
 using WebShopSolution.Data.EF;
 using WebShopSolution.ViewModels.Catalog.CartItem;
 using WebShopSolution.ViewModels.Catalog.Order;
 using WebShopSolution.ViewModels.Catalog.Voucher;
-using WebShopSolution.Application.Catalog.PayPal;
 
 namespace WebShopSolution.WebApp.Controllers
 {
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly ICartService _cartService; // Thêm
         private readonly WebShopDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly PayPalService _paypalService;
 
-        public OrderController(IOrderService orderService, WebShopDbContext context, IConfiguration configuration, PayPalService paypalService)
+        public OrderController(
+            IOrderService orderService,
+            ICartService cartService, // Thêm
+            WebShopDbContext context,
+            IConfiguration configuration,
+            PayPalService paypalService)
         {
             _orderService = orderService;
+            _cartService = cartService; // Thêm
             _context = context;
             _configuration = configuration;
             _paypalService = paypalService;
@@ -102,7 +110,6 @@ namespace WebShopSolution.WebApp.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Checkout(OrderCreateRequest request)
         {
@@ -131,81 +138,26 @@ namespace WebShopSolution.WebApp.Controllers
                 return View(request);
             }
 
-            TempData["OrderSuccess"] = true;
+            await _orderService.UpdateStockAfterOrderAsync(request.Items);
 
-            var adminBaseUrl = _configuration["AdminBaseUrl"];
-            foreach (var item in request.Items)
+            // ✅ Xóa các sản phẩm trong giỏ sau khi đặt hàng thành công
+            var cartId = HttpContext.Session.GetInt32("CartId") ?? 0;
+            if (cartId != 0)
             {
-                if (string.IsNullOrEmpty(item.ImagePath))
-                {
-                    var productImage = await _context.ProductImages
-                        .Where(pi => pi.ProductId == item.ProductId)
-                        .OrderBy(pi => pi.SortOrder)
-                        .FirstOrDefaultAsync();
-
-                    item.ImagePath = productImage != null
-                        ? $"{adminBaseUrl}/{productImage.ImagePath.TrimStart('/')}"
-                        : $"{adminBaseUrl}/images/no-image.png";
-                }
-                else if (!item.ImagePath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                {
-                    item.ImagePath = $"{adminBaseUrl}/{item.ImagePath.TrimStart('/')}";
-                }
+                await _cartService.DeleteItemsFromCartAsync(cartId, request.Items);
             }
+
+            // ✅ Xóa session
+            HttpContext.Session.Remove("SelectedCartItems");
+            HttpContext.Session.Remove("SelectedCartTotal");
+            HttpContext.Session.Remove("SelectedVoucherCode");
+            HttpContext.Session.Remove("SelectedDiscountAmount");
+            HttpContext.Session.Remove("IsVoucherFromCart");
+
+            TempData["OrderSuccess"] = true;
 
             return View(request);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> History()
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
-                return RedirectToAction("Login", "Account");
-
-            var orders = await _orderService.GetOrdersByUserIdAsync(userId.Value);
-            return View("History", orders);
-        }
-        [HttpPost]
-        public async Task<IActionResult> ApplyVoucher([FromBody] ApplyVoucherRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.VoucherCode))
-                return Json(new { success = false, message = "Vui lòng nhập mã." });
-
-            var selectedItemsJson = HttpContext.Session.GetString("SelectedCartItems");
-            var totalAmountStr = HttpContext.Session.GetString("SelectedCartTotal");
-
-            if (string.IsNullOrEmpty(selectedItemsJson) || string.IsNullOrEmpty(totalAmountStr))
-                return Json(new { success = false, message = "Không tìm thấy giỏ hàng." });
-
-            var items = JsonConvert.DeserializeObject<List<CartItemSelectionRequest>>(selectedItemsJson);
-            if (items == null || !items.Any())
-                return Json(new { success = false, message = "Giỏ hàng trống." });
-
-            if (!int.TryParse(totalAmountStr, out int totalAmount))
-                return Json(new { success = false, message = "Tổng tiền không hợp lệ." });
-
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
-                return Json(new { success = false, message = "Bạn chưa đăng nhập." });
-
-            var result = await _orderService.ApplyVoucherAsync(request.VoucherCode.Trim(), totalAmount, userId.Value);
-
-            if (!result.IsValid)
-                return Json(new { success = false, message = result.Message });
-
-            // Lưu mã voucher vào session nếu hợp lệ
-            HttpContext.Session.SetString("SelectedVoucherCode", request.VoucherCode);
-
-            return Json(new
-            {
-                success = true,
-                discountAmount = result.DiscountAmount,
-                originalTotal = result.OriginalTotal,
-                message = result.Message
-            });
-        }
-
 
         [HttpPost]
         public async Task<IActionResult> PayWithPayPal(OrderCreateRequest request)
@@ -222,15 +174,12 @@ namespace WebShopSolution.WebApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Lưu đơn hàng tạm thời vào session
             HttpContext.Session.SetString("PendingOrderRequest", JsonConvert.SerializeObject(request));
 
-            // ✅ Chuyển từ VND sang USD (giả sử tỷ giá = 24,000)
             const decimal exchangeRate = 26125m;
             var totalVnd = request.TotalAmount - request.DiscountAmount;
-            var totalUsd = Math.Round(totalVnd / exchangeRate, 2); // làm tròn 2 chữ số sau dấu phẩy
+            var totalUsd = Math.Round(totalVnd / exchangeRate, 2);
 
-            // Gọi PayPal tạo đơn hàng
             var approvalUrl = await _paypalService.CreateOrder(totalUsd);
             if (string.IsNullOrEmpty(approvalUrl))
             {
@@ -240,9 +189,6 @@ namespace WebShopSolution.WebApp.Controllers
 
             return Redirect(approvalUrl);
         }
-
-
-
 
         [HttpGet]
         public async Task<IActionResult> PaypalSuccess([FromQuery] string token)
@@ -275,12 +221,73 @@ namespace WebShopSolution.WebApp.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            HttpContext.Session.Remove("PendingOrderRequest");
-            TempData["OrderSuccess"] = true;
+            // ✅ Xóa các sản phẩm trong giỏ sau khi đặt hàng thành công
+            var cartId = HttpContext.Session.GetInt32("CartId") ?? 0;
+            if (cartId != 0)
+            {
+                await _cartService.DeleteItemsFromCartAsync(cartId, orderRequest.Items);
+            }
 
+            // ✅ Xóa session
+            HttpContext.Session.Remove("PendingOrderRequest");
+            HttpContext.Session.Remove("SelectedCartItems");
+            HttpContext.Session.Remove("SelectedCartTotal");
+            HttpContext.Session.Remove("SelectedVoucherCode");
+            HttpContext.Session.Remove("SelectedDiscountAmount");
+            HttpContext.Session.Remove("IsVoucherFromCart");
+
+            TempData["OrderSuccess"] = true;
             return RedirectToAction("Checkout");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> History()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
 
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId.Value);
+            return View("History", orders);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApplyVoucher([FromBody] ApplyVoucherRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.VoucherCode))
+                return Json(new { success = false, message = "Vui lòng nhập mã." });
+
+            var selectedItemsJson = HttpContext.Session.GetString("SelectedCartItems");
+            var totalAmountStr = HttpContext.Session.GetString("SelectedCartTotal");
+
+            if (string.IsNullOrEmpty(selectedItemsJson) || string.IsNullOrEmpty(totalAmountStr))
+                return Json(new { success = false, message = "Không tìm thấy giỏ hàng." });
+
+            var items = JsonConvert.DeserializeObject<List<CartItemSelectionRequest>>(selectedItemsJson);
+            if (items == null || !items.Any())
+                return Json(new { success = false, message = "Giỏ hàng trống." });
+
+            if (!int.TryParse(totalAmountStr, out int totalAmount))
+                return Json(new { success = false, message = "Tổng tiền không hợp lệ." });
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return Json(new { success = false, message = "Bạn chưa đăng nhập." });
+
+            var result = await _orderService.ApplyVoucherAsync(request.VoucherCode.Trim(), totalAmount, userId.Value);
+
+            if (!result.IsValid)
+                return Json(new { success = false, message = result.Message });
+
+            HttpContext.Session.SetString("SelectedVoucherCode", request.VoucherCode);
+
+            return Json(new
+            {
+                success = true,
+                discountAmount = result.DiscountAmount,
+                originalTotal = result.OriginalTotal,
+                message = result.Message
+            });
+        }
     }
 }

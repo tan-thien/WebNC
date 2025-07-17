@@ -14,6 +14,7 @@ namespace WebShopSolution.Application.Catalog.Carts
         Task<bool> DeleteItemAsync(int cartId, int productId, int? variantId);
         Task<ProductVariant?> GetProductVariantByIdAsync(int variantId);
 
+        Task DeleteItemsFromCartAsync(int cartId, List<CartItemSelectionRequest> items);
 
     }
 }

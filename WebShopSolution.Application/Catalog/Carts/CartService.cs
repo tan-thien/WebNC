@@ -156,5 +156,24 @@ namespace WebShopSolution.Application.Catalog.Carts
         {
             return await _context.ProductVariants.FirstOrDefaultAsync(v => v.Id == variantId);
         }
+
+        public async Task DeleteItemsFromCartAsync(int cartId, List<CartItemSelectionRequest> items)
+        {
+            var cartItems = _context.CartItems
+                .Where(ci => ci.CartId == cartId);
+
+            foreach (var item in items)
+            {
+                var match = await cartItems
+                    .FirstOrDefaultAsync(ci => ci.ProductId == item.ProductId && ci.VariantId == item.VariantId);
+
+                if (match != null)
+                {
+                    _context.CartItems.Remove(match);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

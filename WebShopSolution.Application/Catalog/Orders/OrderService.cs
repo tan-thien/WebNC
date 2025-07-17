@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using WebShopSolution.ViewModels.Catalog.CartItem;
 
 public class OrderService : IOrderService
 {
@@ -399,4 +401,53 @@ public class OrderService : IOrderService
         await _unitOfWork.Orders.UpdateAsync(order);
         return true;
     }
+
+
+    public async Task<bool> UpdateStockAfterOrderAsync(List<CartItemSelectionRequest> items)
+    {
+        try
+        {
+            foreach (var item in items)
+            {
+                if (item.VariantId.HasValue)
+                {
+                    var variant = await _unitOfWork.ProductVariants.GetByIdAsync(item.VariantId.Value);
+                    if (variant != null && variant.Stock >= item.Quantity)
+                    {
+                        variant.Stock -= item.Quantity;
+                        await _unitOfWork.ProductVariants.UpdateAsync(variant);
+                    }
+                    else
+                    {
+                        // Thiếu hàng
+                        return false;
+                    }
+                }
+                else
+                {
+                    var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId);
+                    if (product != null && product.Quantity >= item.Quantity)
+                    {
+                        product.Quantity -= item.Quantity;
+                        await _unitOfWork.Products.UpdateAsync(product);
+                    }
+                    else
+                    {
+                        // Thiếu hàng
+                        return false;
+                    }
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+
+
 }

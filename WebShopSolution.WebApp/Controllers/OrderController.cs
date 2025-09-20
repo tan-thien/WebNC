@@ -221,6 +221,9 @@ namespace WebShopSolution.WebApp.Controllers
                 return RedirectToAction("Checkout");
             }
 
+            // ✅ Cập nhật tồn kho sau khi thanh toán thành công
+            await _orderService.UpdateStockAfterOrderAsync(orderRequest.Items);
+
             // ✅ Xóa các sản phẩm trong giỏ sau khi đặt hàng thành công
             var cartId = HttpContext.Session.GetInt32("CartId") ?? 0;
             if (cartId != 0)

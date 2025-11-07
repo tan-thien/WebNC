@@ -56,6 +56,7 @@ namespace WebShopSolution.Admin.Controllers
             if (res.IsSuccessStatusCode) return RedirectToAction(nameof(Index));
 
             // load lại danh mục cha nếu lỗi
+            //dfkgvujfhgkvdfukivhkd
             var categories = await _httpClient.GetFromJsonAsync<List<CategoryViewModel>>("/api/category");
             ViewBag.Categories = categories;
             return View(request);
